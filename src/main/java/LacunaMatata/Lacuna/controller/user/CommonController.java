@@ -30,7 +30,7 @@ public class CommonController {
     @GetMapping("/setting/bankinfo")
     @ApiOperation(value = "getBankInfoApi")
     public ResponseEntity<?> getBankInfo() {
-        List<RespSettingInfoDto> settingBankInfo = commonService.getSettingInfo();
+        List<RespSettingInfoDto> settingBankInfo = commonService.getSettingBankInfo();
         return ResponseEntity.ok().body(settingBankInfo);
     }
 
