@@ -65,7 +65,7 @@ public class UserController {
     // 프로필페이지 - 내 이메일 주소 바꾸기 (메일 인증)
     @PostMapping("/user/change/email")
     @ApiOperation(value = "MyPage - 이메일 주소 변경 (인증)")
-    public ResponseEntity<?> changeMyEmail(@RequestBody ReqChangeMyEmailDto dto) {
+    public ResponseEntity<?> changeMyEmail(@RequestBody ReqChangeMyEmailDto dto) throws Exception {
         Boolean success = userService.changeMyEmail(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -73,7 +73,7 @@ public class UserController {
     // 프로필페이지 - 내 이메일 주소 바꾸기2
     @PutMapping("/user/change/email")
     @ApiOperation(value = "MyPage - 이메일 주소 변경 (수정)")
-    public ResponseEntity<?> changeMyEmail2(ReqMyEmailTokenDto dto) {
+    public ResponseEntity<?> changeMyEmail2(@RequestBody ReqMyEmailTokenDto dto) {
         userService.changeMyEmail2(dto);
         return ResponseEntity.ok().body(true);
     }

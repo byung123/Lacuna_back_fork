@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class ReqMyEmailTokenDto {
-    private String emailtoken;
+    private String emailToken;
 }

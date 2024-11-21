@@ -146,17 +146,27 @@ public class UserService {
     }
 
     // 프로필 페이지 - 내 이메일 주소 변경하기 (메일 인증)
-    public Boolean changeMyEmail(ReqChangeMyEmailDto dto) {
+    public Boolean changeMyEmail(ReqChangeMyEmailDto dto) throws Exception {
         String toEmail = dto.getEmail();
+
+        if(userMapper.findUserByEmail(dto.getEmail()) == null) {
+            throw new Exception("이미 존재하는 이메일입니다.");
+        }
+        String emailToken = jwtProvider.generateEmailValidToken(toEmail);
+        String bearerToken = "Bearer ".concat(emailToken);
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;"
                 + "width:400px'>");
         htmlContent.append("<h2>Lacuna 메일 주소 변경 이메일 인증 입니다.</h2>");
         htmlContent.append("<h3>아래 인증하기 버튼을 클릭해주세요</h3>");
-        htmlContent.append("<a target='_blank' href='http://localhost:8080/api/v1/user/change/email?emailtoken=");
-        htmlContent.append(jwtProvider.generateEmailValidToken(toEmail));
-        htmlContent.append("'>인증하기</a>");
+        htmlContent.append("<form action='http://localhost:8080/api/v1/user/change/email' method='POST'>");
+        htmlContent.append("<input type='hidden' name='_method' value='PUT' />");
+        htmlContent.append("<input type='hidden' name='emailToken' value='");
+        htmlContent.append(bearerToken);
+        htmlContent.append("' />"); // 토큰 값 전달
+        htmlContent.append("<button type='submit' style='padding:10px 20px;background-color:blue;color:white;border:none;'>인증하기</button>");
+        htmlContent.append("</form>");
         htmlContent.append("</div>");
 
         return authService.send(toEmail, "Lacuna 메일 주소 변경 이메일 인증 ", htmlContent.toString());
@@ -166,7 +176,7 @@ public class UserService {
     public void changeMyEmail2(ReqMyEmailTokenDto dto) {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int userId = principalUser.getId();
-        String emailToken = dto.getEmailtoken();
+        String emailToken = dto.getEmailToken();
 
         Claims claims = jwtProvider.getClaim(emailToken);
         String email = (String) claims.get("toEmail");
