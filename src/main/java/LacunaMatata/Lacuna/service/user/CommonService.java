@@ -34,6 +34,21 @@ public class CommonService {
         return respSettingInfo;
     }
 
+    // 설정(은행 정보) 정보 출력
+    public List<RespSettingInfoDto> getSettingBankInfo() {
+        List<Setting> settings = commonMapper.getSettingBankInfoList();
+        List<RespSettingInfoDto> respSettingInfo = new ArrayList<RespSettingInfoDto>();
+        for(Setting setting : settings) {
+            RespSettingInfoDto respSettingInfoDto = RespSettingInfoDto.builder()
+                    .settingId(setting.getSettingId())
+                    .dataType(setting.getDataType())
+                    .value(setting.getValue())
+                    .build();
+            respSettingInfo.add(respSettingInfoDto);
+        }
+        return respSettingInfo;
+    }
+
     // 페이지 정보 눌렀을 때 1증가
     public void getCountIntroPage(ReqServiceCountInfoDto dto) {
         statisticService.plusServiceCount(dto);

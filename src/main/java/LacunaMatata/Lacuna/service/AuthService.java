@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,58 +40,64 @@ public class AuthService {
 
     @Autowired private UserMapper userMapper;
 
+    @Autowired private BCryptPasswordEncoder passwordEncoder;
+
     // 일반 회원 가입
     @Transactional(rollbackFor = Exception.class)
-    public void signup(ReqGeneralSignupDto dto) {
+    public void signup(ReqGeneralSignupDto dto) throws Exception {
 
-        User user = User.builder()
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .name(dto.getName())
-                .build();
-        userMapper.saveUser(user);
+        try {
+            User user = User.builder()
+                    .username(dto.getUsername())
+                    .email(dto.getEmail())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .name(dto.getName())
+                    .build();
+            userMapper.saveUser(user);
 
-        int useConditionAgreement = 0;
-        int marketingReceiveAgreement = 0;
-        int thirdPartyInfoSharingAgreement = 0;
+            int useConditionAgreement = 0;
+            int marketingReceiveAgreement = 0;
+            int thirdPartyInfoSharingAgreement = 0;
 
-        if(dto.getUseConditionAgreement() == true) {
-            useConditionAgreement = 1;
-        } else {
-            useConditionAgreement = 2;
+            if(dto.getUseConditionAgreement() == true) {
+                useConditionAgreement = 1;
+            } else {
+                useConditionAgreement = 2;
+            }
+            if(dto.getMarketingReceiveAgreement() == true) {
+                marketingReceiveAgreement = 1;
+            } else {
+                marketingReceiveAgreement = 2;
+            }
+            if(dto.getThirdPartyInfoSharingAgreement() == true) {
+                thirdPartyInfoSharingAgreement = 1;
+            } else {
+                thirdPartyInfoSharingAgreement = 2;
+            }
+
+            UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
+                    .userId(user.getUserId())
+                    .birthDate(dto.getBirthDate())
+                    .gender(dto.getGender())
+                    .phoneNumber(dto.getPhoneNumber())
+                    .address(dto.getAddress())
+                    .marketingReceiveAgreement(marketingReceiveAgreement)
+                    .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
+                    .useConditionAgreement(useConditionAgreement)
+                    .build();
+            userMapper.saveUserOptionalInfo(userOptionalInfo);
+
+            List<Integer> roleIdList = new ArrayList<>();
+            roleIdList.add(1);
+            roleIdList.add(2);
+            Map<String, Object> params = Map.of(
+                    "userId", user.getUserId(),
+                    "roleIdList", roleIdList
+            );
+            userMapper.saveUserRoleMet(params);
+        } catch (Exception e) {
+            throw new Exception("회원가입 도중 오류가 발생했습니다.");
         }
-        if(dto.getMarketingReceiveAgreement() == true) {
-            marketingReceiveAgreement = 1;
-        } else {
-            marketingReceiveAgreement = 2;
-        }
-        if(dto.getThirdPartyInfoSharingAgreement() == true) {
-            thirdPartyInfoSharingAgreement = 1;
-        } else {
-            thirdPartyInfoSharingAgreement = 2;
-        }
-
-        UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
-                .userId(user.getUserId())
-                .birthDate(dto.getBirthDate())
-                .gender(dto.getGender())
-                .phoneNumber(dto.getPhoneNumber())
-                .address(dto.getAddress())
-                .marketingReceiveAgreement(marketingReceiveAgreement)
-                .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
-                .useConditionAgreement(useConditionAgreement)
-                .build();
-        userMapper.saveUserOptionalInfo(userOptionalInfo);
-
-        List<Integer> roleIdList = new ArrayList<>();
-        roleIdList.add(1);
-        roleIdList.add(2);
-        Map<String, Object> params = Map.of(
-                "userId", user.getUserId(),
-                "roleIdList", roleIdList
-        );
-        userMapper.saveUserRoleMet(params);
     }
 
     // 일반 로그인
@@ -124,67 +131,73 @@ public class AuthService {
 
     // 오어스 회원가입
     @Transactional(rollbackFor = Exception.class)
-    public void oauthSignup(ReqOauthSignupDto dto) {
-        User user = User.builder()
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .name(dto.getName())
-                .build();
-        userMapper.saveUser(user);
+    public void oauthSignup(ReqOauthSignupDto dto) throws Exception {
 
-        int useConditionAgreement = 0;
-        int marketingReceiveAgreement = 0;
-        int thirdPartyInfoSharingAgreement = 0;
+        try {
+            User user = User.builder()
+                    .username(dto.getUsername())
+                    .email(dto.getEmail())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .name(dto.getName())
+                    .build();
+            userMapper.saveUser(user);
 
-        if(dto.getUseConditionAgreement() == true) {
-            useConditionAgreement = 1;
-        } else {
-            useConditionAgreement = 2;
+            int useConditionAgreement = 0;
+            int marketingReceiveAgreement = 0;
+            int thirdPartyInfoSharingAgreement = 0;
+
+            if(dto.getUseConditionAgreement() == true) {
+                useConditionAgreement = 1;
+            } else {
+                useConditionAgreement = 2;
+            }
+            if(dto.getMarketingReceiveAgreement() == true) {
+                marketingReceiveAgreement = 1;
+            } else {
+                marketingReceiveAgreement = 2;
+            }
+            if(dto.getThirdPartyInfoSharingAgreement() == true) {
+                thirdPartyInfoSharingAgreement = 1;
+            } else {
+                thirdPartyInfoSharingAgreement = 2;
+            }
+
+            UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
+                    .userId(user.getUserId())
+                    .birthDate(dto.getBirthDate())
+                    .gender(dto.getGender())
+                    .phoneNumber(dto.getPhoneNumber())
+                    .address(dto.getAddress())
+                    .marketingReceiveAgreement(marketingReceiveAgreement)
+                    .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
+                    .useConditionAgreement(useConditionAgreement)
+                    .build();
+            userMapper.saveUserOptionalInfo(userOptionalInfo);
+
+            SocialLogin socialLogin = SocialLogin.builder()
+                    .socialUserId(user.getUserId())
+                    .socialId(dto.getSocialId())
+                    .provider(dto.getProvider())
+                    .build();
+            userMapper.saveOauthInfo(socialLogin);
+
+            List<Integer> roleIdList = new ArrayList<>();
+            roleIdList.add(1);
+            roleIdList.add(2);
+            Map<String, Object> params = Map.of(
+                    "userId", user.getUserId(),
+                    "roleIdList", roleIdList
+            );
+            userMapper.saveUserRoleMet(params);
+        } catch (Exception e) {
+            throw new Exception("회원가입 도중 오류가 발생하였습니다");
         }
-        if(dto.getMarketingReceiveAgreement() == true) {
-            marketingReceiveAgreement = 1;
-        } else {
-            marketingReceiveAgreement = 2;
-        }
-        if(dto.getThirdPartyInfoSharingAgreement() == true) {
-            thirdPartyInfoSharingAgreement = 1;
-        } else {
-            thirdPartyInfoSharingAgreement = 2;
-        }
-
-        UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
-                .userId(user.getUserId())
-                .birthDate(dto.getBirthDate())
-                .gender(dto.getGender())
-                .phoneNumber(dto.getPhoneNumber())
-                .address(dto.getAddress())
-                .marketingReceiveAgreement(marketingReceiveAgreement)
-                .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
-                .useConditionAgreement(useConditionAgreement)
-                .build();
-        userMapper.saveUserOptionalInfo(userOptionalInfo);
-
-        SocialLogin socialLogin = SocialLogin.builder()
-                .socialUserId(user.getUserId())
-                .socialId(dto.getSocialId())
-                .provider(dto.getProvider())
-                .build();
-        userMapper.saveOauthInfo(socialLogin);
-
-        List<Integer> roleIdList = new ArrayList<>();
-        roleIdList.add(1);
-        roleIdList.add(2);
-        Map<String, Object> params = Map.of(
-                "userId", user.getUserId(),
-                "roleIdList", roleIdList
-        );
-        userMapper.saveUserRoleMet(params);
     }
 
-    // username이 있는 지 검사 -> AuthAspect로 들어감
-    public Boolean isNonUserByUsername(String username) {
+    // username 중복 되는 지 검사 -> AuthAspect로 들어감
+    public Boolean isDuplicateUsername(String username) {
         User user = userMapper.findUserByUsername(username);
+
         if(user == null) {
             return true;
         }
@@ -195,17 +208,7 @@ public class AuthService {
     public Boolean isDifferentPassword(ReqGeneralSigninDto dto) {
         User user = userMapper.findUserByUsername(dto.getUsername());
 
-        if(!user.getPassword().equals(dto.getPassword())) {
-            return true;
-        }
-        return false;
-    }
-
-    // username 중복 되는 지 검사 -> AuthAspect로 들어감
-    public Boolean isDuplicateUsername(String username) {
-        User user = userMapper.findUserByUsername(username);
-
-        if(user == null) {
+        if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             return true;
         }
         return false;

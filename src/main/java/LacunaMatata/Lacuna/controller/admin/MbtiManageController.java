@@ -40,7 +40,7 @@ public class MbtiManageController {
     // MBTI 분류 카테고리 등록
     @ApiOperation(value = "MBTI 분류 카테고리 - 등록") // test 완료 (이상 없음)
     @PostMapping("/survey/category/regist")
-    public ResponseEntity<?> registMbtiCategory(@ModelAttribute ReqRegistMbtiCategoryDto dto) throws IOException {
+    public ResponseEntity<?> registMbtiCategory(@ModelAttribute ReqRegistMbtiCategoryDto dto) throws IOException, Exception {
         mbtiManageService.registMbtiCategory(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -64,7 +64,7 @@ public class MbtiManageController {
     // MBTI 분류 카테고리 수정
     @ApiOperation(value = "MBTI 분류 카테고리 - 수정")
     @PostMapping("/survey/category/modify/{categoryId}") // test 완료 (이상 없음)
-    public ResponseEntity<?> modifyMbtiCategory(@ModelAttribute ReqModifyMbtiCategoryDto dto, @PathVariable int categoryId) throws IOException {
+    public ResponseEntity<?> modifyMbtiCategory(@ModelAttribute ReqModifyMbtiCategoryDto dto, @PathVariable int categoryId) throws IOException, Exception {
         mbtiManageService.modifyMbtiCategory(dto, categoryId);
         return ResponseEntity.ok().body(true);
     }
@@ -72,7 +72,7 @@ public class MbtiManageController {
     // MBTI 분류 카테고리 삭제
     @ApiOperation(value = "MBTI 분류 카테고리 - 단일 삭제")
     @DeleteMapping("/survey/category/delete/{categoryId}") // test ㅇ놔료(이상 없음)
-    public ResponseEntity<?> deleteMbtiCategory(@PathVariable int categoryId) {
+    public ResponseEntity<?> deleteMbtiCategory(@PathVariable int categoryId) throws Exception {
         mbtiManageService.deleteMbtiCategory(categoryId);
         return ResponseEntity.ok().body(true);
     }
@@ -80,7 +80,7 @@ public class MbtiManageController {
     // MBTI 분류 카테고리 복수개 삭제
     @ApiOperation(value = "MBTI 분류 카테고리 - 복수 삭제")
     @DeleteMapping("/survey/category/delete")
-    public ResponseEntity<?> deleteMbtiCategoryList(@RequestBody ReqDeleteMbtiCategoryListDto dto) {
+    public ResponseEntity<?> deleteMbtiCategoryList(@RequestBody ReqDeleteMbtiCategoryListDto dto) throws Exception {
         mbtiManageService.deleteMbtiCategoryList(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -103,7 +103,7 @@ public class MbtiManageController {
     // MBTI 설문 항목 등록
     @ApiOperation(value = "MBTI 설문지 - 등록") // 이싱 있음
     @PostMapping("/question/regist")
-    public ResponseEntity<?> registMbtiQuestion(@ModelAttribute ReqRegistMbtiQuestionDto dto) throws IOException {
+    public ResponseEntity<?> registMbtiQuestion(@ModelAttribute ReqRegistMbtiQuestionDto dto) throws IOException, Exception {
         mbtiManageService.registMbtiQuestion(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -119,7 +119,7 @@ public class MbtiManageController {
     // MBTI 설문 항목 모달 수정
     @ApiOperation(value = "MBTI 설문지 - 수정") // 이상 있음
     @PostMapping("/question/modify/{mbtiId}")
-    public ResponseEntity<?> modifyMbtiQuestion(@ModelAttribute ReqModifyMbtiQuestionDto dto, @PathVariable int mbtiId) throws IOException {
+    public ResponseEntity<?> modifyMbtiQuestion(@ModelAttribute ReqModifyMbtiQuestionDto dto, @PathVariable int mbtiId) throws IOException, Exception {
         mbtiManageService.modifyMbtiQuestion(dto, mbtiId);
         return ResponseEntity.ok().body(true);
     }
@@ -127,7 +127,7 @@ public class MbtiManageController {
     // MBTI 설문 항목 삭제
     @ApiOperation(value = "MBTI 설문지 - 단일 삭제")
     @DeleteMapping("/question/delete/{mbtiId}")
-    public ResponseEntity<?> deleteMbtiQuestion(@PathVariable int mbtiId) {
+    public ResponseEntity<?> deleteMbtiQuestion(@PathVariable int mbtiId) throws Exception {
         mbtiManageService.deleteMbtiQuestion(mbtiId);
         return ResponseEntity.ok().body(true);
     }
@@ -135,7 +135,7 @@ public class MbtiManageController {
     // MBTI 설문 항목 복수개 삭제
     @ApiOperation(value = "MBTI 설문지 - 복수 삭제")
     @DeleteMapping("/question/delete")
-    public ResponseEntity<?> deleteMbtiQuestionList(@RequestBody ReqDeleteMbtiQuestionDto dto) {
+    public ResponseEntity<?> deleteMbtiQuestionList(@RequestBody ReqDeleteMbtiQuestionDto dto) throws Exception {
         mbtiManageService.deleteMbtiQuestionList(dto);
         return ResponseEntity.ok().body(true);
     }

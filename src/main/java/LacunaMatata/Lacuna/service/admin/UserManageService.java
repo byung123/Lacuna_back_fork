@@ -10,7 +10,9 @@ import LacunaMatata.Lacuna.entity.user.UserOptionalInfo;
 import LacunaMatata.Lacuna.entity.user.UserRole;
 import LacunaMatata.Lacuna.entity.user.UserRoleMet;
 import LacunaMatata.Lacuna.repository.admin.UserManageMapper;
+import LacunaMatata.Lacuna.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,12 @@ public class UserManageService {
 
     @Autowired
     private UserManageMapper userManageMapper;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     // 사용자 정보 리스트 출력
     public RespCountAndUserListDto getUserInfoList(ReqGetUserListDto dto) {
@@ -68,35 +76,48 @@ public class UserManageService {
     // 사용자 등록
     @Transactional(rollbackFor = Exception.class)
     public void registUser(ReqRegistUserDto dto) throws Exception {
+
+        if(authService.isDuplicateUsername(dto.getUsername())) {
+            throw new Exception("해당 ID는 이미 존재하는 계정입니다.");
+        }
+
         if(!dto.getPassword().equals(dto.getPasswordCheck())) {
-            throw new Exception("비밀번호 오류");
+            throw new Exception("비밀번호가 일치하지 않습니다.");
         }
 
-        User user = User.builder()
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .name(dto.getName())
-                .build();
-        userManageMapper.saveUser(user);
-
-        UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
-                .userId(user.getUserId())
-                .birthDate(dto.getBirthDate())
-                .gender(dto.getGender())
-                .phoneNumber(dto.getPhoneNumber())
-                .build();
-        userManageMapper.saveUserOptionalInfo(userOptionalInfo);
-
-        List<Integer> roleIdList = new ArrayList<>();
-        for(int i = 1; i < dto.getRoleId() + 1; i++) {
-            roleIdList.add(i);
+        if(authService.isDuplicateEmail(dto.getEmail())) {
+            throw new Exception("해당 이메일은 이미 존재하는 이메일입니다.");
         }
-        Map<String, Object> params = Map.of(
-                "userId", user.getUserId(),
-                "roleIdList", roleIdList
-        );
-        userManageMapper.saveUserRoleMet(params);
+
+        try {
+            User user = User.builder()
+                    .username(dto.getUsername())
+                    .email(dto.getEmail())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .name(dto.getName())
+                    .build();
+            userManageMapper.saveUser(user);
+
+            UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
+                    .userId(user.getUserId())
+                    .birthDate(dto.getBirthDate())
+                    .gender(dto.getGender())
+                    .phoneNumber(dto.getPhoneNumber())
+                    .build();
+            userManageMapper.saveUserOptionalInfo(userOptionalInfo);
+
+            List<Integer> roleIdList = new ArrayList<>();
+            for(int i = 1; i < dto.getRoleId() + 1; i++) {
+                roleIdList.add(i);
+            }
+            Map<String, Object> params = Map.of(
+                    "userId", user.getUserId(),
+                    "roleIdList", roleIdList
+            );
+            userManageMapper.saveUserRoleMet(params);
+        } catch (Exception e) {
+            throw new Exception("사용자 등록 도중 오류 발생");
+        }
     }
 
     // 사용자 권한 목록 출력(필터)

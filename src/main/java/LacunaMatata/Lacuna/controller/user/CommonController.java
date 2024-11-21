@@ -27,6 +27,13 @@ public class CommonController {
         return ResponseEntity.ok().body(settingInfo);
     }
 
+    @GetMapping("/setting/bankinfo")
+    @ApiOperation(value = "getBankInfoApi")
+    public ResponseEntity<?> getBankInfo() {
+        List<RespSettingInfoDto> settingBankInfo = commonService.getSettingInfo();
+        return ResponseEntity.ok().body(settingBankInfo);
+    }
+
     @PostMapping("/service/counting")
     @ApiOperation(value = "통계 - 서비스 이용(조회)수 증가")
     public ResponseEntity<?> getCountIndex(@RequestBody ReqServiceCountInfoDto dto) {

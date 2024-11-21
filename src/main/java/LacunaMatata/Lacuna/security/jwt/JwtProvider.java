@@ -31,14 +31,15 @@ public class JwtProvider {
     // 인증받은 사용자 토큰 만료 시간
     private Date authorizdExpriedDate() {
         Date authorizedExpiredDate = new Date(new Date().getTime() + (Long) 1000L * 60 * 60 * 24 * 30);
+//        Date authorizedExpiredDate = new Date(new Date().getTime() + (Long) 1000L * 60 * 30); // 30분 유효기간
         return authorizedExpiredDate;
     }
 
-    // 인증받지 않은 사용자 토큰 만료 시간
-    private Date notAuthorizdExpriedDate() {
-        Date notAuthorizedExpiredDate = new Date(new Date().getTime() + (Long) 1000L * 60 * 5);
-        return notAuthorizedExpiredDate;
-    }
+//    // 인증받지 않은 사용자 토큰 만료 시간 // 이거 왜 만들었지?
+//    private Date notAuthorizdExpriedDate() {
+//        Date notAuthorizedExpiredDate = new Date(new Date().getTime() + (Long) 1000L * 60 * 5);
+//        return notAuthorizedExpiredDate;
+//    }
 
     // accessToken - bearer 지우기
     public String removeBearer(String bearerToken) {

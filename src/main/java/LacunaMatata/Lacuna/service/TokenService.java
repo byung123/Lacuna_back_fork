@@ -38,7 +38,7 @@ public class TokenService {
             userMapper.modifyLoginDate(userId);
 
         } catch (RuntimeException e) {
-            throw new RuntimeException("유효성 발생");
+            throw new RuntimeException("로그인 시간이 만료되었습니다. 다시 로그인 부탁드립니다.");
         }
     }
 }
