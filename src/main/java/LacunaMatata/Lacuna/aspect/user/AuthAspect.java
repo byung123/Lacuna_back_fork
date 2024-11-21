@@ -68,7 +68,7 @@ public class AuthAspect {
                     // 나중에 username과 password 둘다 같은 메세지로 설정
                     if(arg.getClass() == ReqGeneralSigninDto.class) {
                         ReqGeneralSigninDto dto = (ReqGeneralSigninDto) arg;
-                        if(authService.isNonUserByUsername(dto.getUsername())) {
+                        if(authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
                                     = new FieldError("username", "username", "존재하지 않는 계정입니다");
                             bindingResult.addError(fieldError);
@@ -89,9 +89,9 @@ public class AuthAspect {
                     // 나중에 username과 password 둘다 같은 메세지로 설정
                     if(arg.getClass() == ReqOauthSignupDto.class) {
                         ReqOauthSignupDto dto = (ReqOauthSignupDto) arg;
-                        if(!authService.isNonUserByUsername(dto.getUsername())) {
+                        if(!authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
-                                    = new FieldError("username", "username", "존재하지 않는 계정입니다");
+                                    = new FieldError("username", "username", "입력하신 아이디는 이미 존재하는 계정입니다");
                             bindingResult.addError(fieldError);
                             break;
                         }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /************************************
  * version: 1.0.3                   *
@@ -60,7 +61,7 @@ public class AuthController {
     @PostMapping("/signup")
     @ApiOperation(value = "회원가입 - 일반 회원가입")
     @AuthAop
-    public ResponseEntity<?> signup(@RequestBody ReqGeneralSignupDto dto, BindingResult bindingResult) {
+    public ResponseEntity<?> signup(@Valid @RequestBody ReqGeneralSignupDto dto, BindingResult bindingResult) throws Exception {
         authService.signup(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -69,7 +70,7 @@ public class AuthController {
     @ApiOperation(value = "회원가입 - oauth2 회원가입")
     @PostMapping("/oauth2user/signup")
     @AuthAop
-    public ResponseEntity<?> oauthSignup(@RequestBody ReqOauthSignupDto dto, BindingResult bindingResult) {
+    public ResponseEntity<?> oauthSignup(@RequestBody ReqOauthSignupDto dto, BindingResult bindingResult) throws Exception {
         authService.oauthSignup(dto);
         return ResponseEntity.ok().body(true);
     }

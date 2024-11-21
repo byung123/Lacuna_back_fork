@@ -40,7 +40,7 @@ public class UserController {
 
     // 프로필 페이지 - 프로필 사진 바꾸기
     @ApiOperation(value = "MyPage - 프로필 사진 수정")
-    @PostMapping("/user/change/profile/img")
+    @PutMapping("/user/change/profile/img")
     public ResponseEntity<?> changeMyProfileImg(@RequestBody ReqModifyProfileImgDto dto) throws IOException {
         userService.changeMyProfileImg(dto);
         return ResponseEntity.ok().body(true);
