@@ -46,10 +46,17 @@ public class UserController {
         return ResponseEntity.ok().body(true);
     }
 
-    // 프로필 페이지 - 비밀번호 바꾸기
+    // 프로필 페이지 - 비밀번호 바꾸기1
+    @PostMapping("/user/change/password")
+    @ApiOperation(value = "MyPage - 비밀번호 변경1")
+    public ResponseEntity<?> chekcPassword(@RequestBody ReqPasswordCheckDto dto) throws Exception {
+        userService.passwordCheck(dto);
+        return ResponseEntity.ok().body(true);
+    }
+
+    // 프로필페이지 - 비밀번호 바꾸기2
     @PutMapping("/user/change/password")
-    @ApiOperation(value = "MyPage - 비밀번호 변경")
-    public ResponseEntity<?> passwordChange(@RequestBody ReqPasswordChangeDto dto) throws Exception {
+    public ResponseEntity<?> changePassword(@RequestBody ReqPasswordChangeDto dto) throws Exception {
         userService.passwordChange(dto);
         return ResponseEntity.ok().body(true);
     }

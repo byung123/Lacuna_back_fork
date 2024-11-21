@@ -1,11 +1,9 @@
 package LacunaMatata.Lacuna.service.user;
 
-import LacunaMatata.Lacuna.dto.request.user.auth.ReqAuthEmailDto;
 import LacunaMatata.Lacuna.dto.request.user.user.*;
 import LacunaMatata.Lacuna.dto.response.user.user.*;
 import LacunaMatata.Lacuna.entity.mbti.MbtiResult;
 import LacunaMatata.Lacuna.entity.order.Order;
-import LacunaMatata.Lacuna.entity.order.OrderItem;
 import LacunaMatata.Lacuna.entity.user.PasswordHistory;
 import LacunaMatata.Lacuna.entity.user.User;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
@@ -18,16 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +45,9 @@ public class UserService {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     // 프로필 정보 (헤더부분) 출력
     public RespMyProfileHeaderDto getMyProfileHeader() {
@@ -108,22 +105,29 @@ public class UserService {
         userMapper.modifyMyProfileImg(params);
     }
 
-    // 프로필 페이지 - 비밀번호 변경
+    // 프로필 페이지 - 비밀번호 변경1
     @Transactional(rollbackFor = Exception.class)
-    public void passwordChange(ReqPasswordChangeDto dto) throws Exception {
+    public Boolean passwordCheck(ReqPasswordCheckDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int userId = principalUser.getId();
         User user = userMapper.findUserByUserId(userId);
 
-        if(!user.getPassword().equals(dto.getCurrentPassword())) {
-            throw new Exception("현재 사용하고 있는 비밀번호 불일치");
+        if(!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new Exception("현재 사용하고 있는 비밀번호가 일치하지 않습니다.");
         }
 
-        if(!dto.getPassword().equals(dto.getPasswordCheck())) {
-            throw new Exception("비밀번호 체크 불일치");
-        }
+        return true;
+    }
 
-        String modifyPassword = dto.getPassword();
+    // 프로필 페이지 - 비밀번호 변경2
+    public void passwordChange(ReqPasswordChangeDto dto) throws Exception {
+        if(!dto.getPassword().equals(dto.getCheckPassword())) {
+            throw new Exception("비밀번호가 일치하지 않습니다.");
+        }
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        int userId = principalUser.getId();
+
+        String modifyPassword = passwordEncoder.encode(dto.getPassword());
         userMapper.modifyPassword(userId, modifyPassword);
 
         PasswordHistory passwordHistory = PasswordHistory.builder()
