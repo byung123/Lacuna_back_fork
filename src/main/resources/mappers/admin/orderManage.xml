@@ -62,7 +62,7 @@
             #{paymentApproveId},
             "계좌이체",
             0,
-            "failed",
+            "CANCEL",
             now()
         )
     </insert>
@@ -87,7 +87,7 @@
     <update id="cancelSystemOrder">
         update tb_order
         set
-            status = "Cancelled"
+            status = "CANCEL"
         where
             order_id = (select p.payment_order_id
                 from tb_payment p
@@ -96,28 +96,28 @@
     <update id="cancelSystemPayment">
         update tb_payment
         set
-            payment_status = "Cancelled"
+            payment_status = "CANCEL"
         where
             payment_id = #{paymentId}
     </update>
     <update id="cancelAccountOrder">
         update tb_order
         set
-            status = "Cancelled"
+            status = "CANCEL"
         where
             order_id = #{orderId}
     </update>
     <update id="approveAccountOrder">
         update tb_order
         set
-            status = "Completed"
+            status = "SUCCESS"
         where
             order_id = #{orderId}
     </update>
     <update id="approveAccountPayment">
         update tb_payment
         set
-            payment_status = "Completed"
+            payment_status = "SUCCESS"
         where
             payment_order_id = #{orderId}
     </update>

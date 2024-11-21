@@ -3,6 +3,7 @@ package LacunaMatata.Lacuna.aspect.user;
 import LacunaMatata.Lacuna.dto.request.user.auth.ReqGeneralSigninDto;
 import LacunaMatata.Lacuna.dto.request.user.auth.ReqGeneralSignupDto;
 import LacunaMatata.Lacuna.dto.request.user.auth.ReqOauthSignupDto;
+import LacunaMatata.Lacuna.exception.auth.ValidException;
 import LacunaMatata.Lacuna.service.AuthService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -111,7 +112,7 @@ public class AuthAspect {
         }
 
         if(bindingResult.hasErrors()) {
-            throw new Exception("유효성 검사 오류");
+            return ResponseEntity.badRequest().body(bindingResult.getFieldErrors());
         }
 
         return proceedingJoinPoint.proceed();

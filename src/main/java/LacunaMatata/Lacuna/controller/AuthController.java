@@ -68,8 +68,8 @@ public class AuthController {
     // 오어스 회원가입
     @ApiOperation(value = "회원가입 - oauth2 회원가입")
     @PostMapping("/oauth2user/signup")
+    @AuthAop
     public ResponseEntity<?> oauthSignup(@RequestBody ReqOauthSignupDto dto, BindingResult bindingResult) {
-        System.out.println(dto);
         authService.oauthSignup(dto);
         return ResponseEntity.ok().body(true);
     }
