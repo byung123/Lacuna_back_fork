@@ -29,6 +29,7 @@ public class User {
     private int socialLoginType;
     private LocalDateTime passwordLastChanged;
     private LocalDateTime lastLoginDate;
+    private String authenticationCode;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
 

@@ -2,7 +2,7 @@ package LacunaMatata.Lacuna.service;
 
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
 import LacunaMatata.Lacuna.entity.user.*;
-import LacunaMatata.Lacuna.exception.auth.EmailNotFoundException;
+import LacunaMatata.Lacuna.exception.auth.*;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.ip.IpUtils;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -272,42 +273,132 @@ public class AuthService {
         }
     }
 
-    public void findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
+    // 아이디 찾기
+    public String findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
         String toEmail = dto.getEmail();
+        Map<String, Object> params = Map.of(
+            "email", toEmail,
+            "birth", dto.getBirth(),
+            "name", dto.getName()
+        );
 
-        User user = userMapper.findUserByEmail(toEmail);
+        User user = userMapper.findUserByNameEmailBirth(params);
         if(user == null) {
             throw new EmailNotFoundException("해당 이메일에 대한 정보가 존재하지 않습니다. 회원가입 때 입력한 이메일을 적어주세요.");
         }
 
-        StringBuilder htmlContent = new StringBuilder();
-        htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;"
-                + "width:400px'>");
-        htmlContent.append("<h2>Lacuna 사용자 계정찾기 안내</h2>");
-        htmlContent.append("<h3>회원님의 계정 아이디는");
-        htmlContent.append(user.getUsername());
-        htmlContent.append("입니다.</h3>");
-        htmlContent.append("</div>");
+        String username = user.getUsername();
+        String maskingUsername = maskingInfo(username);
 
-        send(toEmail, "Lacuna 아이디 찾기", htmlContent.toString());
+        return maskingUsername;
     }
 
-    public void findPassword(ReqFindPasswordDto dto) throws Exception {
-        User user = userMapper.findUserByUsername(dto.getUsername());
+    // 비밀번호 찾기1 - 인증코드 보내기
+    @Transactional(rollbackFor = Exception.class)
+    public void findPassword(ReqFindPasswordDto dto) throws UsernameNotFoundException {
+        String toEmail = dto.getEmail();
+        Map<String, Object> params = Map.of(
+            "username", dto.getUsername(),
+            "email", toEmail
+        );
+        User user = userMapper.findUserByUsernameEmail(params);
         if(user == null) {
-            throw new Exception("없는 계정");
+            throw new UsernameNotFoundException("해당 계정의 정보를 찾을 수 없습니다. 입력하신 정보를 다시 한 번 확인하세요.");
         }
 
-        String toEmail = user.getEmail();
+        StringBuilder code = generateAuthenticationCode();
+        String authenticationCode = code.toString();
+        Map<String, Object> params2 = Map.of(
+            "userId", user.getUserId(),
+            "authenticationCode", authenticationCode
+        );
+        userMapper.updateAuthenticationCode(params2);
+
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;"
                 + "width:400px'>");
-        htmlContent.append("<h2>Lacuna 사용자 비밀번호 찾기 안내</h2>");
-        htmlContent.append("<h3>회원님의 계정 비밀번호는");
-        htmlContent.append(user.getPassword());
+        htmlContent.append("<h2>Lacuna 사용자 인증코드 안내</h2>");
+        htmlContent.append("<h3>회원님의 임시 인증코드는");
+        htmlContent.append(authenticationCode);
         htmlContent.append("입니다.</h3>");
         htmlContent.append("</div>");
 
-        send(toEmail, "Lacuna 비밀번호 찾기", htmlContent.toString());
+        send(toEmail, "Lacuna 비밀번호 찾기 인증코드", htmlContent.toString());
+    }
+
+    // 비밀번호 찾기2 - 인증코드 확인
+    public Boolean checkAuthenticationCode(ReqCheckAuthenticationDto dto) {
+        User user = userMapper.checkAuthenticationCode(dto.getUsername());
+
+        if(!user.getAuthenticationCode().equals(dto.getAuthenticationCode())) {
+            throw new NotMatchAuthenticationException("인증번호 불일치");
+        }
+
+        return true;
+    }
+
+    // 비밀번호 찾기3 - 새 비밀번호로 저장하기
+    @Transactional(rollbackFor = Exception.class)
+    public void changeNewPassword(ReqChangeNewPasswordDto dto) {
+        String username = dto.getUsername();
+        String password = dto.getPassword();
+        User user = userMapper.findUserByUsername(username);
+        if(user.getPassword().equals(password)) {
+            throw new IsPresentPasswordException("현재 사용하고 있는 비밀번호와 일치합니다. 새로운 비밀번호를 입력 바랍니다.");
+        }
+
+        if(!password.equals(dto.getPasswordCheck())) {
+            throw new NotMatchPasswordCheckException("비밀번호가 일치하지 않습니다. 다시 확인 부탁드립니다.");
+        }
+
+        Map<String, Object> params = Map.of(
+            "username", username,
+            "password", password
+        );
+        userMapper.modifyNewPassword(params);
+        PasswordHistory passwordHistory = PasswordHistory.builder()
+                .historyUserId(user.getUserId())
+                .password(password)
+                .build();
+        userMapper.savePasswordHistory(passwordHistory);
+    }
+
+    private String maskingInfo(String info) {
+        if (info == null || info.length() < 3) {
+            // 너무 짧은 ID는 마스킹하지 않음
+            return info;
+        }
+
+        int length = info.length();
+        int start = length / 3; // ID 길이의 1/3 지점
+        int end = start + 2;   // 마스킹할 2글자
+
+        // ID가 짧으면 끝까지 마스킹
+        if (end > length) {
+            end = length;
+        }
+
+        // 마스킹 처리
+        String maskedInfo = info.substring(0, start)
+                + "*".repeat(end - start)
+                + info.substring(end);
+
+        return maskedInfo;
+    }
+
+    private StringBuilder generateAuthenticationCode() {
+        // 임시 비밀번호 생성
+        String tempCharacter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        int passwordLength = 10;
+
+        SecureRandom randomNumber = new SecureRandom();
+        StringBuilder tempCode = new StringBuilder();
+
+        for(int i = 0; i < passwordLength; i++) {
+            int index = randomNumber.nextInt(tempCharacter.length());
+            tempCode.append(tempCharacter.charAt(index));
+        }
+
+        return tempCode;
     }
 }

@@ -3,6 +3,7 @@ package LacunaMatata.Lacuna.controller;
 import LacunaMatata.Lacuna.aspect.annotation.user.AuthAop;
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
 import LacunaMatata.Lacuna.exception.auth.EmailNotFoundException;
+import LacunaMatata.Lacuna.exception.auth.UsernameNotFoundException;
 import LacunaMatata.Lacuna.service.AuthService;
 import LacunaMatata.Lacuna.service.TokenService;
 import LacunaMatata.Lacuna.service.user.UserService;
@@ -135,15 +136,29 @@ public class AuthController {
     @PostMapping("/find/id")
     @ApiOperation(value = "찾기 - 사용자 ID 찾기")
     public ResponseEntity<?> findUsername(@RequestBody ReqFindUsernameDto dto) throws EmailNotFoundException {
-        authService.findUsername(dto);
+        return ResponseEntity.ok().body(authService.findUsername(dto));
+    }
+
+    // 사용자 비밀번호 찾기 - 인증코드 전송
+    @PostMapping("/find/password/authentication")
+    @ApiOperation(value = "찾기 - 사용자 PW 찾기 - 인증코드 전송")
+    public ResponseEntity<?> findPassword(@RequestBody ReqFindPasswordDto dto) throws UsernameNotFoundException {
+        authService.findPassword(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 사용자 비밀번호 찾기
-    @PostMapping("/find/password")
-    @ApiOperation(value = "찾기 - 사용자 PW 찾기")
-    public ResponseEntity<?> findPassword(@RequestBody ReqFindPasswordDto dto) throws Exception {
-        authService.findPassword(dto);
+    // 사용자 비밀번호 찾기 - 인증코드 인증
+    @PostMapping("/find/password/checkcode")
+    @ApiOperation(value = "찾기 - 사용자 PW 찾기 - 인증코드 인증")
+    public ResponseEntity<?> checkAuthenticationCode(@RequestBody ReqCheckAuthenticationDto dto) {
+        return ResponseEntity.ok().body(authService.checkAuthenticationCode(dto));
+    }
+
+    // 사용자 비밀번호 찾기 - 새 비밀번호 입력
+    @PutMapping("/find/password/newpassword")
+    @ApiOperation(value = "찾기 - 사용자 PW 찾기 - 인증코드 인증")
+    public ResponseEntity<?> changeNewPassword(@RequestBody ReqChangeNewPasswordDto dto) {
+        authService.changeNewPassword(dto);
         return ResponseEntity.ok().body(true);
     }
 }

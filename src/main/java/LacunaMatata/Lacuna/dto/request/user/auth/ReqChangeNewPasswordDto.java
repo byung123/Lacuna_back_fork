@@ -3,7 +3,8 @@ package LacunaMatata.Lacuna.dto.request.user.auth;
 import lombok.Data;
 
 @Data
-public class ReqFindPasswordDto {
+public class ReqChangeNewPasswordDto {
     private String username;
-    private String email;
+    private String password;
+    private String passwordCheck;
 }

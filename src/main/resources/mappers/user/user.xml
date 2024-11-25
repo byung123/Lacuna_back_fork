@@ -18,6 +18,7 @@
         <result property="lastLoginDate" column="last_login_date" />
         <result property="createDate" column="created_date" />
         <result property="roleName" column="roleName" />
+        <result property="authenticationCode" column="authentication_code" />
         <association property="userOptionalInfo" resultMap="userOptionalInfoResultMap" />
         <collection property="userRoleMets" javaType="java.util.Set" resultMap="userRoleMetsResultMap" />
     </resultMap>
@@ -204,6 +205,22 @@
             status = "cancelled"
         where
             order_id = #{orderId}
+    </update>
+    <update id="updateAuthenticationCode">
+        update tb_user
+        set
+            authentication_code = #{authenticationCode}
+        where
+            user_id = #{userId}
+    </update>
+    <update id="modifyNewPassword">
+        update tb_user
+        set
+            password = #{password},
+            authentication_code = "",
+            update_date = now()
+        where
+            username = #{username}
     </update>
 
     <delete id="deleteUser">
@@ -454,5 +471,44 @@
             tb_payment
         where
             payment_order_id = #{orderId}
+    </select>
+    <select id="findUserByNameEmailBirth" resultMap="UserResultMap">
+        select
+            u.user_id,
+            u.name,
+            u.email,
+            u.username,
+            uoi.birth_date
+        from
+            tb_user u
+            left outer join tb_user_optional_info uoi on u.user_id = uoi.user_id
+        where
+            u.name = #{name}
+            and
+            u.email = #{email}
+            and
+            uoi.birth_date = #{birth}
+    </select>
+    <select id="findUserByUsernameEmail" resultMap="UserResultMap">
+        select
+            user_id,
+            username,
+            email
+        from
+            tb_user
+        where
+            username = #{username}
+            and
+            email = #{email}
+    </select>
+    <select id="checkAuthenticationCode" resultMap="UserResultMap">
+        select
+            user_id,
+            username,
+            authentication_code
+        from
+            tb_user
+        where
+            username = #{username}
     </select>
 </mapper>

@@ -27,9 +27,9 @@ public interface UserMapper {
     int modifyLoginDate(int userId);
     // 3. 프로필 페이지 - 프로필 이미지 변경
     int modifyMyProfileImg(Map<String, Object> params);
-    // 4-1. 마이페이지 - 비밀번호 변경하기(User)_2024.11.05
+    // 4-2. 마이페이지 - 비밀번호 변경하기(User)_2024.11.05
     int modifyPassword(int userId, String modifyPassword);
-    // 4-2. 마이페이지 - 비밀번호 변경하기(PasswordHistory)_2024.11.05
+    // 4-3. 마이페이지 - 비밀번호 변경하기(PasswordHistory)_2024.11.05
     int savePasswordHistory(PasswordHistory passwordHistory);
     // 5. 마이페이지 - 폰 번호 변경하기
     int modifyPhoneNumber(Map<String, Object> params);
@@ -71,4 +71,14 @@ public interface UserMapper {
     String getKakaoAddress();
     // 8. 주문 번호로 지불 정보 찾기
     int findPaymentByOrderId(int orderId);
+    // 9. 아이디 찾기시 - 이메일, 이름, 생년월일로 user 정보 찾기
+    User findUserByNameEmailBirth(Map<String, Object> params);
+    // 10-1. 비밀번호 찾기시 - 계정Id, 이메일로 user 정보 찾기
+    User findUserByUsernameEmail(Map<String, Object> params);
+    // 10-2. 비밀번호 찾기시 - 인증코드 저장
+    int updateAuthenticationCode(Map<String, Object> params);
+    // 10-3. 비밀번호 찾기시 - 인증코드 비교
+    User checkAuthenticationCode(String username);
+    // 10-4. 비밀번호 찾기시 - 새 비밀번호 바꾸기
+    int modifyNewPassword(Map<String, Object> params);
 }
