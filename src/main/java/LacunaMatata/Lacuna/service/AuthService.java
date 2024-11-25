@@ -2,6 +2,7 @@ package LacunaMatata.Lacuna.service;
 
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
 import LacunaMatata.Lacuna.entity.user.*;
+import LacunaMatata.Lacuna.exception.auth.EmailNotFoundException;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.ip.IpUtils;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
@@ -271,12 +272,12 @@ public class AuthService {
         }
     }
 
-    public void findUsername(ReqFindUsernameDto dto) throws Exception {
-        String toEmail = dto.getToEmail();
+    public void findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
+        String toEmail = dto.getEmail();
 
         User user = userMapper.findUserByEmail(toEmail);
         if(user == null) {
-            throw new Exception("없는 계정");
+            throw new EmailNotFoundException("해당 이메일에 대한 정보가 존재하지 않습니다. 회원가입 때 입력한 이메일을 적어주세요.");
         }
 
         StringBuilder htmlContent = new StringBuilder();

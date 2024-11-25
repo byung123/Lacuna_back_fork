@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class ReqFindUsernameDto {
-    private String toEmail;
+    private String email;
 }

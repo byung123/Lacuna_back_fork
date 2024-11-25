@@ -2,6 +2,7 @@ package LacunaMatata.Lacuna.controller;
 
 import LacunaMatata.Lacuna.aspect.annotation.user.AuthAop;
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
+import LacunaMatata.Lacuna.exception.auth.EmailNotFoundException;
 import LacunaMatata.Lacuna.service.AuthService;
 import LacunaMatata.Lacuna.service.TokenService;
 import LacunaMatata.Lacuna.service.user.UserService;
@@ -133,7 +134,7 @@ public class AuthController {
     // 사용자 아이디 찾기
     @PostMapping("/find/id")
     @ApiOperation(value = "찾기 - 사용자 ID 찾기")
-    public ResponseEntity<?> findUsername(@RequestBody ReqFindUsernameDto dto) throws Exception {
+    public ResponseEntity<?> findUsername(@RequestBody ReqFindUsernameDto dto) throws EmailNotFoundException {
         authService.findUsername(dto);
         return ResponseEntity.ok().body(true);
     }

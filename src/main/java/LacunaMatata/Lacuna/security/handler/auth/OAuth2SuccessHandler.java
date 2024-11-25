@@ -1,6 +1,5 @@
-package LacunaMatata.Lacuna.security.handler;
+package LacunaMatata.Lacuna.security.handler.auth;
 
-import LacunaMatata.Lacuna.entity.user.SocialLogin;
 import LacunaMatata.Lacuna.entity.user.User;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;

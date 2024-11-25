@@ -2,11 +2,10 @@ package LacunaMatata.Lacuna.config;
 
 
 import LacunaMatata.Lacuna.security.filter.JwtTokenFilter;
-import LacunaMatata.Lacuna.security.handler.OAuth2SuccessHandler;
+import LacunaMatata.Lacuna.security.handler.auth.OAuth2SuccessHandler;
 import LacunaMatata.Lacuna.service.OAuth2Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
