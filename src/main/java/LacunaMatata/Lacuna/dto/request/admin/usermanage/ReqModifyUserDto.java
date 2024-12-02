@@ -10,5 +10,4 @@ public class ReqModifyUserDto {
     private String password;
     private String passwordCheck;
     private String phoneNumber;
-    private String profileImg;
 }
