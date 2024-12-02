@@ -1,11 +1,14 @@
 package LacunaMatata.Lacuna.service;
 
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
+import LacunaMatata.Lacuna.dto.response.user.auth.RespFindUsernameDto;
+import LacunaMatata.Lacuna.entity.Setting;
 import LacunaMatata.Lacuna.entity.user.*;
 import LacunaMatata.Lacuna.exception.auth.*;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.ip.IpUtils;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
+import LacunaMatata.Lacuna.service.admin.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -274,7 +277,7 @@ public class AuthService {
     }
 
     // 아이디 찾기
-    public String findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
+    public RespFindUsernameDto findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
         String toEmail = dto.getEmail();
         Map<String, Object> params = Map.of(
             "email", toEmail,
@@ -284,13 +287,20 @@ public class AuthService {
 
         User user = userMapper.findUserByNameEmailBirth(params);
         if(user == null) {
-            throw new EmailNotFoundException("해당 이메일에 대한 정보가 존재하지 않습니다. 회원가입 때 입력한 이메일을 적어주세요.");
+            throw new EmailNotFoundException("입력하신 정보와 일치하는 사용자를 찾을 수 없습니다. 입력하신 정보를 확인해주세요");
         }
 
+        String adminEmail = userMapper.getAdminEmail();
         String username = user.getUsername();
         String maskingUsername = maskingInfo(username);
 
-        return maskingUsername;
+        RespFindUsernameDto  respFindUsernameDto = RespFindUsernameDto.builder()
+                .userId(user.getUserId())
+                .username(maskingUsername)
+                .email(adminEmail)
+                .build();
+
+        return respFindUsernameDto;
     }
 
     // 비밀번호 찾기1 - 인증코드 보내기

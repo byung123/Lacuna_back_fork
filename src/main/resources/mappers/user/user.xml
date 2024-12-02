@@ -83,6 +83,11 @@
     <resultMap id="paymentResultMap" type="LacunaMatata.Lacuna.entity.order.Payment">
         <id property="paymentId" column="payment_id" />
     </resultMap>
+    <resultMap id="SettingResultMap" type="LacunaMatata.Lacuna.entity.Setting">
+        <id property="settingId" column="setting_id" />
+        <result property="dataType" column="data_type" />
+        <result property="value" column="value" />
+    </resultMap>
 
     <insert id="saveUser" useGeneratedKeys="true" keyProperty="userId">
         insert into tb_user
@@ -511,5 +516,15 @@
             tb_user
         where
             username = #{username}
+    </select>
+    <select id="getAdminEmail" resultMap="SettingResultMap">
+        select
+            setting_id,
+            data_type,
+            value
+        from
+            tb_setting
+        where
+            data_type = "Email"
     </select>
 </mapper>

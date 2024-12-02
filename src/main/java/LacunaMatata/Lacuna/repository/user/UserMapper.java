@@ -71,8 +71,10 @@ public interface UserMapper {
     String getKakaoAddress();
     // 8. 주문 번호로 지불 정보 찾기
     int findPaymentByOrderId(int orderId);
-    // 9. 아이디 찾기시 - 이메일, 이름, 생년월일로 user 정보 찾기
+    // 9-1. 아이디 찾기시 - 이메일, 이름, 생년월일로 user 정보 찾기
     User findUserByNameEmailBirth(Map<String, Object> params);
+    // 9-2. 아이디 찾기시 - 관리자 이메일 정보 불러오기
+    String getAdminEmail();
     // 10-1. 비밀번호 찾기시 - 계정Id, 이메일로 user 정보 찾기
     User findUserByUsernameEmail(Map<String, Object> params);
     // 10-2. 비밀번호 찾기시 - 인증코드 저장
