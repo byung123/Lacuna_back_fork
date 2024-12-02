@@ -205,9 +205,9 @@ public class AuthService {
         User user = userMapper.findUserByUsername(username);
 
         if(user == null) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     // username의 비밃번호를 틀렸을 때 검사 -> AuthAspect로 들어감
@@ -225,9 +225,9 @@ public class AuthService {
         User user = userMapper.findUserByEmail(email);
 
         if(user == null) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public Boolean sendAuthEmail(ReqAuthEmailDto dto) {

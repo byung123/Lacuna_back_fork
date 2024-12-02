@@ -43,12 +43,12 @@ public class AuthAspect {
                 for(Object arg : args) {
                     if(arg.getClass() == ReqGeneralSignupDto.class) {
                         ReqGeneralSignupDto dto = (ReqGeneralSignupDto) arg;
-                        if(!authService.isDuplicateUsername(dto.getUsername())) {
+                        if(authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
                                     = new FieldError("username", "username", "이미 존재하는 계정입니다.");
                             bindingResult.addError(fieldError);
                         }
-                        if(!authService.isDuplicateEmail(dto.getEmail())) {
+                        if(authService.isDuplicateEmail(dto.getEmail())) {
                             FieldError fieldError
                                     = new FieldError("email", "email", "이미 존재하는 이메일 주소입니다.");
                             bindingResult.addError(fieldError);
@@ -68,7 +68,7 @@ public class AuthAspect {
                     // 나중에 username과 password 둘다 같은 메세지로 설정
                     if(arg.getClass() == ReqGeneralSigninDto.class) {
                         ReqGeneralSigninDto dto = (ReqGeneralSigninDto) arg;
-                        if(authService.isDuplicateUsername(dto.getUsername())) {
+                        if(!authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
                                     = new FieldError("username", "username", "존재하지 않는 계정입니다");
                             bindingResult.addError(fieldError);
@@ -89,12 +89,12 @@ public class AuthAspect {
                     // 나중에 username과 password 둘다 같은 메세지로 설정
                     if(arg.getClass() == ReqOauthSignupDto.class) {
                         ReqOauthSignupDto dto = (ReqOauthSignupDto) arg;
-                        if(!authService.isDuplicateUsername(dto.getUsername())) {
+                        if(authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
                                     = new FieldError("username", "username", "입력하신 아이디는 이미 존재하는 계정입니다");
                             bindingResult.addError(fieldError);
                         }
-                        if(!authService.isDuplicateEmail(dto.getEmail())) {
+                        if(authService.isDuplicateEmail(dto.getEmail())) {
                             FieldError fieldError
                                     = new FieldError("email", "email", "이미 존재하는 이메일 주소입니다.");
                             bindingResult.addError(fieldError);
