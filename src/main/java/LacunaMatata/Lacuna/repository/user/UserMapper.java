@@ -1,5 +1,6 @@
 package LacunaMatata.Lacuna.repository.user;
 
+import LacunaMatata.Lacuna.entity.Setting;
 import LacunaMatata.Lacuna.entity.mbti.MbtiResult;
 import LacunaMatata.Lacuna.entity.order.Order;
 import LacunaMatata.Lacuna.entity.user.*;
@@ -74,7 +75,7 @@ public interface UserMapper {
     // 9-1. 아이디 찾기시 - 이메일, 이름, 생년월일로 user 정보 찾기
     User findUserByNameEmailBirth(Map<String, Object> params);
     // 9-2. 아이디 찾기시 - 관리자 이메일 정보 불러오기
-    String getAdminEmail();
+    List<Setting> getAdminEmailAndPhone();
     // 10-1. 비밀번호 찾기시 - 계정Id, 이메일로 user 정보 찾기
     User findUserByUsernameEmail(Map<String, Object> params);
     // 10-2. 비밀번호 찾기시 - 인증코드 저장

@@ -6,7 +6,7 @@ import lombok.Data;
 @Builder
 @Data
 public class RespFindUsernameDto {
-    private int userId;
     private String username;
     private String email;
+    private String phone;
 }

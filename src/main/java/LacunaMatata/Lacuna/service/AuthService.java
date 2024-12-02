@@ -290,14 +290,16 @@ public class AuthService {
             throw new EmailNotFoundException("입력하신 정보와 일치하는 사용자를 찾을 수 없습니다. 입력하신 정보를 확인해주세요");
         }
 
-        String adminEmail = userMapper.getAdminEmail();
+        List<Setting> adminEmailAndPhone = userMapper.getAdminEmailAndPhone();
+        String adminEmail = adminEmailAndPhone.stream().map(setting -> setting.getDataType() == "Email").toString();
+        String adminPhone = adminEmailAndPhone.stream().map(setting -> setting.getDataType() == "Phone").toString();
         String username = user.getUsername();
         String maskingUsername = maskingInfo(username);
 
         RespFindUsernameDto  respFindUsernameDto = RespFindUsernameDto.builder()
-                .userId(user.getUserId())
                 .username(maskingUsername)
                 .email(adminEmail)
+                .phone(adminPhone)
                 .build();
 
         return respFindUsernameDto;

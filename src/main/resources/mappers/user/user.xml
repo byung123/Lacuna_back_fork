@@ -517,7 +517,7 @@
         where
             username = #{username}
     </select>
-    <select id="getAdminEmail" resultMap="SettingResultMap">
+    <select id="getAdminEmailAndPhone" resultMap="SettingResultMap">
         select
             setting_id,
             data_type,
@@ -525,6 +525,6 @@
         from
             tb_setting
         where
-            data_type = "Email"
+            data_type = in ("Email", "Phone")
     </select>
 </mapper>
