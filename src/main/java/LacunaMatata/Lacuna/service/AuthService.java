@@ -401,4 +401,38 @@ public class AuthService {
 
         return tempCode;
     }
+
+    // 인증 성공 화면
+    public String successView() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<html>");
+        sb.append("<body>");
+        sb.append("<script>");
+        sb.append("alert('인증이 완료되었습니다');");
+        sb.append("</script>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+        return sb.toString();
+    }
+
+    // 인증 실패 화면
+    public String errorView(String message) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<html>");
+        sb.append("<body>");
+        sb.append("<div style=\"text-align:center;\">");
+        sb.append("<h2>");
+        sb.append(message);
+        sb.append("</h2>");
+        // onclick 소문자로 해야함
+        sb.append("<button onclick='window.close()'>닫기</button>");
+        sb.append("</div>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+        return sb.toString();
+    }
 }

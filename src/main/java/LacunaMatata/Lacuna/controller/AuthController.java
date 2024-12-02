@@ -93,43 +93,11 @@ public class AuthController {
         String validResult = authService.validToken(emailtoken);
 
         if(validResult.equals("validFail")) {
-            response.getWriter().println(errorView("인증시간이 만료되었습니다. 다시 시도해 주세요"));
+            response.getWriter().println(authService.errorView("인증시간이 만료되었습니다. 다시 시도해 주세요"));
             throw new Exception("인증 시간 만료");
         }
-        response.getWriter().println(successView());
+        response.getWriter().println(authService.successView());
         return true;
-    }
-
-    private String successView() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<html>");
-        sb.append("<body>");
-        sb.append("<script>");
-        sb.append("alert('인증이 완료되었습니다');");
-        sb.append("</script>");
-        sb.append("</body>");
-        sb.append("</html>");
-
-        return sb.toString();
-    }
-
-    private String errorView(String message) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<html>");
-        sb.append("<body>");
-        sb.append("<div style=\"text-align:center;\">");
-        sb.append("<h2>");
-        sb.append(message);
-        sb.append("</h2>");
-        // onclick 소문자로 해야함
-        sb.append("<button onclick='window.close()'>닫기</button>");
-        sb.append("</div>");
-        sb.append("</body>");
-        sb.append("</html>");
-
-        return sb.toString();
     }
 
     // 사용자 아이디 찾기
