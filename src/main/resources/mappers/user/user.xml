@@ -525,6 +525,6 @@
         from
             tb_setting
         where
-            data_type = in ("Email", "Phone")
+            data_type in ("Email", "Phone")
     </select>
 </mapper>
