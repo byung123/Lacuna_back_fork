@@ -192,7 +192,7 @@ public class AuthService {
             );
             userMapper.saveUserRoleMet(params);
         } catch (Exception e) {
-            throw new Exception("회원가입 도중 오류가 발생하였습니다");
+            throw new Exception("회원가입 도중 오류가 발생하였습니다. 잠시 후 이용 부탁드립니다. (서버 오류)");
         }
     }
 
@@ -343,7 +343,7 @@ public class AuthService {
         String username = dto.getUsername();
         String password = dto.getPassword();
         User user = userMapper.findUserByUsername(username);
-        if(user.getPassword().equals(password)) {
+        if(passwordEncoder.matches(password, user.getPassword())) {
             throw new IsPresentPasswordException("현재 사용하고 있는 비밀번호와 일치합니다. 새로운 비밀번호를 입력 바랍니다.");
         }
 
@@ -351,14 +351,16 @@ public class AuthService {
             throw new NotMatchPasswordCheckException("비밀번호가 일치하지 않습니다. 다시 확인 부탁드립니다.");
         }
 
+        String encoingPassword = passwordEncoder.encode(password);
+
         Map<String, Object> params = Map.of(
             "username", username,
-            "password", password
+            "password", encoingPassword
         );
         userMapper.modifyNewPassword(params);
         PasswordHistory passwordHistory = PasswordHistory.builder()
                 .historyUserId(user.getUserId())
-                .password(password)
+                .password(encoingPassword)
                 .build();
         userMapper.savePasswordHistory(passwordHistory);
     }

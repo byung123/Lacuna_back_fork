@@ -93,7 +93,6 @@ public class AuthAspect {
                             FieldError fieldError
                                     = new FieldError("username", "username", "입력하신 아이디는 이미 존재하는 계정입니다");
                             bindingResult.addError(fieldError);
-                            break;
                         }
                         if(!authService.isDuplicateEmail(dto.getEmail())) {
                             FieldError fieldError
