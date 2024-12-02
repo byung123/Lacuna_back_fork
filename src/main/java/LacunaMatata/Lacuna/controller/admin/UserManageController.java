@@ -1,5 +1,6 @@
 package LacunaMatata.Lacuna.controller.admin;
 
+import LacunaMatata.Lacuna.aspect.annotation.admin.UserManageAop;
 import LacunaMatata.Lacuna.dto.request.admin.usermanage.ReqDeleteUserListDto;
 import LacunaMatata.Lacuna.dto.request.admin.usermanage.ReqGetUserListDto;
 import LacunaMatata.Lacuna.dto.request.admin.usermanage.ReqModifyUserDto;
@@ -13,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,8 +44,9 @@ public class UserManageController {
 
     // 사용자 등록
     @PostMapping("/regist")
+    @UserManageAop
     @ApiOperation(value = "사용자 - 사용자 등록") // test 완료
-    public ResponseEntity<?> registerUser(@RequestBody ReqRegistUserDto dto) throws Exception {
+    public ResponseEntity<?> registerUser(@RequestBody ReqRegistUserDto dto, BindingResult bindingResult) throws Exception {
         userManageService.registUser(dto);
         return ResponseEntity.ok().body(true);
     }

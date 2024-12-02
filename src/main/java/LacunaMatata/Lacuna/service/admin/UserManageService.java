@@ -77,18 +77,6 @@ public class UserManageService {
     @Transactional(rollbackFor = Exception.class)
     public void registUser(ReqRegistUserDto dto) throws Exception {
 
-        if(authService.isDuplicateUsername(dto.getUsername())) {
-            throw new Exception("해당 ID는 이미 존재하는 계정입니다.");
-        }
-
-        if(!dto.getPassword().equals(dto.getPasswordCheck())) {
-            throw new Exception("비밀번호가 일치하지 않습니다.");
-        }
-
-        if(authService.isDuplicateEmail(dto.getEmail())) {
-            throw new Exception("해당 이메일은 이미 존재하는 이메일입니다.");
-        }
-
         try {
             User user = User.builder()
                     .username(dto.getUsername())
