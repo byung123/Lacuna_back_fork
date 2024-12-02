@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /************************************
  * version: 1.0.5                   *
@@ -291,8 +292,11 @@ public class AuthService {
         }
 
         List<Setting> adminEmailAndPhone = userMapper.getAdminEmailAndPhone();
-        String adminEmail = adminEmailAndPhone.stream().map(setting -> setting.getDataType() == "Email").toString();
-        String adminPhone = adminEmailAndPhone.stream().map(setting -> setting.getDataType() == "Phone").toString();
+        String adminEmail = adminEmailAndPhone.stream().filter(setting ->
+                setting.getDataType().equals("Email")).map(Setting::getValue).findFirst().orElse(null);
+        String adminPhone = adminEmailAndPhone.stream().filter(setting ->
+                setting.getDataType().equals("Phone")).map(Setting::getValue).findFirst().orElse(null);
+
         String username = user.getUsername();
         String maskingUsername = maskingInfo(username);
 
