@@ -38,4 +38,9 @@ public class AuthControllerAdvice {
     public ResponseEntity<?> IsPresentPasswordException(IsPresentPasswordException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> Exception(Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
 }
