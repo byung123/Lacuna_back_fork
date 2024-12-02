@@ -329,6 +329,9 @@ public class AuthService {
     // 비밀번호 찾기2 - 인증코드 확인
     public Boolean checkAuthenticationCode(ReqCheckAuthenticationDto dto) {
         User user = userMapper.checkAuthenticationCode(dto.getUsername());
+        if(user == null) {
+            throw new UsernameNotFoundException("입력하신 계정의 정보가 없습니다. 다시 한 번 확인 부탁드립니다.");
+        }
 
         if(!user.getAuthenticationCode().equals(dto.getAuthenticationCode())) {
             throw new NotMatchAuthenticationException("인증번호 불일치");
