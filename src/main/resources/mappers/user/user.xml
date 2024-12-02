@@ -97,7 +97,7 @@
             #{email},
             #{password},
             #{name},
-            default,
+            #{socialLoginType},
             now(),
             now(),
             "",

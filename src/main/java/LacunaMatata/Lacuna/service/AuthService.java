@@ -58,6 +58,7 @@ public class AuthService {
                     .email(dto.getEmail())
                     .password(passwordEncoder.encode(dto.getPassword()))
                     .name(dto.getName())
+                    .socialLoginType(1)
                     .build();
             userMapper.saveUser(user);
 
@@ -145,6 +146,7 @@ public class AuthService {
                     .email(dto.getEmail())
                     .password(passwordEncoder.encode(dto.getPassword()))
                     .name(dto.getName())
+                    .socialLoginType(2)
                     .build();
             userMapper.saveUser(user);
 
