@@ -119,8 +119,7 @@
         update
             tb_user_optional_info
         set
-            phone_number = #{phoneNumber},
-            profile_img = #{profileImg}
+            phone_number = #{phoneNumber}
         where
             user_id = #{userId}
     </update>

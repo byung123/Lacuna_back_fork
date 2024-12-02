@@ -212,8 +212,7 @@ public class UserManageService {
             userManageMapper.modifyManagerInfo(params1);
             Map<String, Object> params2 = Map.of(
                     "userId", dto.getUserId(),
-                    "phoneNumber", dto.getPhoneNumber(),
-                    "profileImg", dto.getProfileImg()
+                    "phoneNumber", dto.getPhoneNumber()
             );
             userManageMapper.modifyManageOptionalInfo(params2);
         }
