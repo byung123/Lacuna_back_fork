@@ -80,23 +80,16 @@ public class AuthController {
     // 회원가입 시 이메일 인증(인증 메일 보내기) 1
     @PostMapping("/email")
     @ApiOperation(value = "인증 - (회원가입)이메일 인증1 (인증)")
-    public ResponseEntity<?> sendAuthEmail(@RequestBody ReqAuthEmailDto dto) {
+    public ResponseEntity<?> sendAuthEmail(@RequestBody ReqAuthEmailDto dto) throws Exception {
         authService.sendAuthEmail(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 회원가입시 이메일 인증(토큰 받는곳) 2
-    @GetMapping("/email")
-    @ApiOperation(value = "인증 - (회원가입)이메일 인증2 (토큰)")
-    public void emailValid(@RequestParam String emailtoken, HttpServletResponse response) throws Exception {
-        response.setContentType("text/html;charset=utf-8");
-        String validResult = authService.validToken(emailtoken);
-
-        if(validResult.equals("validFail")) {
-            response.getWriter().println(authService.errorView("인증시간이 만료되었습니다. 다시 시도해 주세요"));
-            throw new Exception("인증 시간 만료");
-        }
-        response.getWriter().println(authService.successView());
+    // 회원가입시 이메일 인증(인증코드 확인) 2
+    @PostMapping("/email/authentication")
+    @ApiOperation(value = "인증 - (회원가입)이메일 인증2 (인증코드 확인)")
+    public ResponseEntity<?> emailValid(@RequestBody ReqEmailAuthenticationDto dto) throws Exception {
+        return ResponseEntity.ok().body(authService.emailAuthentication(dto));
     }
 
     // 사용자 아이디 찾기

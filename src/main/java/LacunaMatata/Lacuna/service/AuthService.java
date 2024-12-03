@@ -192,19 +192,22 @@ public class AuthService {
         return true;
     }
 
-    public Boolean sendAuthEmail(ReqAuthEmailDto dto) {
+    public Boolean sendAuthEmail(ReqAuthEmailDto dto) throws Exception {
         String toEmail = dto.getToEmail();
-//        if(isDuplicateEmail(toEmail)) {
-//            throw new Exception("이메일이 이미 있어요~");
-//        }
+        if(isDuplicateEmail(toEmail)) {
+            throw new Exception("이메일이 이미 있어요~");
+        }
+
+        StringBuilder code = generateAuthenticationCode();
+        String authenticationCode = code.toString();
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;width:400px'>");
         htmlContent.append("<h2>Lacuna 회원가입 이메일 인증 입니다.</h2>");
-        htmlContent.append("<h3>아래 인증하기 버튼을 클릭해주세요</h3>");
-        htmlContent.append("<a target='_blank' href='http://localhost:8080/api/v1/auth/email?emailtoken=");
-        htmlContent.append(jwtProvider.generateEmailValidToken(toEmail));
-        htmlContent.append("'>인증하기</a>");
+        htmlContent.append("<h3>아래 인증번호를 인증번호 입력란에 기입해주시길 바랍니다.</h3>");
+        htmlContent.append("<h3>");
+        htmlContent.append(authenticationCode);
+        htmlContent.append("</h3>");
         htmlContent.append("</div>");
 
         return  send(toEmail, "Lacuna 회원가입 이메일 인증 ", htmlContent.toString());
@@ -229,17 +232,21 @@ public class AuthService {
         return true;
     }
 
-    public String validToken(String emailValidtoken) throws Exception {
-        try {
-            // 만료시간이 지나면 못 꺼낼 것임 -> 지나명 validFail 리턴
-            jwtProvider.getClaim(emailValidtoken);
-
-            // 시간이 유효하면 success 리턴
-            return "success";
-        } catch (Exception e) {
-            return "validFail";
-        }
+    public Boolean emailAuthentication(ReqEmailAuthenticationDto dto) {
+        return true;
     }
+
+//    public String validToken(String emailValidtoken) throws Exception {
+//        try {
+//            // 만료시간이 지나면 못 꺼낼 것임 -> 지나명 validFail 리턴
+//            jwtProvider.getClaim(emailValidtoken);
+//
+//            // 시간이 유효하면 success 리턴
+//            return "success";
+//        } catch (Exception e) {
+//            return "validFail";
+//        }
+//    }
 
     // 아이디 찾기
     public RespFindUsernameDto findUsername(ReqFindUsernameDto dto) throws EmailNotFoundException {
