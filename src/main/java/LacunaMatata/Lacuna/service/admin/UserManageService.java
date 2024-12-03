@@ -200,22 +200,39 @@ public class UserManageService {
         );
         userManageMapper.modifyUserRoleMetDate(modifyParams);
 
-        if(modifyRoleId == 5) {
-            if(!dto.getPassword().equals(dto.getPasswordCheck())) {
-                throw new Exception("비밀번호 불일치");
-            }
-            Map<String, Object> params1 = Map.of(
-                    "userId", dto.getUserId(),
-                    "email", dto.getEmail(),
-                    "password", dto.getPassword()
-            );
-            userManageMapper.modifyManagerInfo(params1);
-            Map<String, Object> params2 = Map.of(
+        // 폰번호 변경
+        if(!user.getUserOptionalInfo().getPhoneNumber().equals(dto.getPhoneNumber()) && !dto.getPhoneNumber().isEmpty() && dto.getPhoneNumber() != null) {
+            Map<String, Object> params = Map.of(
                     "userId", dto.getUserId(),
                     "phoneNumber", dto.getPhoneNumber()
             );
-            userManageMapper.modifyManageOptionalInfo(params2);
+            userManageMapper.modifyManagePhoneInfo(params);
         }
+
+        // 이메일 변경시
+        if(!user.getEmail().equals(dto.getEmail()) && !dto.getEmail().isEmpty() && dto.getEmail() != null) {
+            Map<String, Object> params = Map.of(
+                    "userId", dto.getUserId(),
+                    "email", dto.getEmail()
+            );
+            userManageMapper.modifyManageEmailInfo(params);
+        }
+
+        // 비밀번호 변경시
+        if(dto.getPassword().isEmpty() || user.getPassword().equals(dto.getPassword()) || dto.getPassword() == null) {
+            return;
+        }
+
+        if(!dto.getPassword().equals(dto.getPasswordCheck())) {
+            throw new Exception("비밀번호 불일치");
+        }
+
+        // 비밀번호 변경
+        Map<String, Object> params1 = Map.of(
+                "userId", dto.getUserId(),
+                "password", dto.getPassword()
+        );
+        userManageMapper.modifyPasswordInfo(params1);
     }
 
     // 사용자 삭제

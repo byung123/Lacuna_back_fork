@@ -106,20 +106,27 @@
                 #{roleId}
             </foreach>
     </update>
-    <update id="modifyManagerInfo">
+    <update id="modifyManageEmailInfo">
         update
             tb_user
         set
-            password = #{password},
             email = #{email}
         where
             user_id = #{userId}
     </update>
-    <update id="modifyManageOptionalInfo">
+    <update id="modifyManagePhoneInfo">
         update
             tb_user_optional_info
         set
             phone_number = #{phoneNumber}
+        where
+            user_id = #{userId}
+    </update>
+    <update id="modifyPasswordInfo">
+        update
+            tb_user
+        set
+            password = #{password}
         where
             user_id = #{userId}
     </update>

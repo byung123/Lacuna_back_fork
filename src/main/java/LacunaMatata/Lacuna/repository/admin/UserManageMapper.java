@@ -25,10 +25,12 @@ public interface UserManageMapper {
     // 3-2. 사용자 권한 수정(권한을 높일때) -> 2-3번 이용_2024.10.31
     // 3-3. 권한 수정 날짜 업데이트_2024.10.31
     int modifyUserRoleMetDate(Map<String, Object> params);
-    // 3-4. 사용자 정보 수정(관리자인 경우만) User_2024.11.10
-    int modifyManagerInfo(Map<String, Object> params);
+    // 3-4. 사용자 정보 수정 User_2024.11.10
+    int modifyPasswordInfo(Map<String, Object> params);
     // 3-5. 사용자 정보 수정2(관리자 경우만) UserOptionalInfo_2024.11.10
-    int modifyManageOptionalInfo(Map<String, Object> params);
+    int modifyManageEmailInfo(Map<String, Object> params);
+    // 3-5. 사용자 정보 수정2(관리자 경우만) UserOptionalInfo_2024.11.10
+    int modifyManagePhoneInfo(Map<String, Object> params);
     // 사용자 삭제
     int deleteByUserId(int userId);
     // 사용자 복수개 삭제
