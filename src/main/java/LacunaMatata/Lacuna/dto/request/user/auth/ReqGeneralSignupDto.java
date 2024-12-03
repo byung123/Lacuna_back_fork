@@ -8,7 +8,7 @@ import java.util.Date;
 public class ReqGeneralSignupDto {
     private String username;
     private String password;
-    private String checkPassword;
+    private String passwordCheck;
     private Date birthDate;
     private String email;
     private String name;

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper">
+    <resultMap id="consultingUpperCategoryResultMap" type="LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory">
+        <id property="consultingUpperCategoryId" column="consulting_upper_category_id" />
+        <result property="consultingUpperCategoryName" column="consulting_upper_category_name" />
+        <result property="consultingUpperCategoryDescription" column="consulting_upper_category_description" />
+        <result property="consultingUpperCategoryImg" column="consulting_upper_category_img" />
+        <result property="consultingUpperCategoryRegisterId" column="consulting_upper_category_register_id" />
+        <result property="createDate" column="create_date" />
+        <result property="updateDate" column="update_date" />
+        <result property="name" column="cuc_name" />
+        <result property="totalCount" column="totalCount" />
+        <collection property="consultingLowerCategory" javaType="java.util.List" resultMap="consultingLowerCategoryResultMap" />
+    </resultMap>
+    <resultMap id="consultingLowerCategoryResultMap" type="LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory">
+        <id property="consultingLowerCategoryId" column="consulting_lower_category_id" />
+        <result property="consultingUpperCategoryId" column="consulting_upper_category_id" />
+        <result property="consultingLowerCategoryName" column="consulting_lower_category_name" />
+        <result property="consultingLowerCategoryRegisterId" column="consulting_lower_category_register_id" />
+        <result property="createDate" column="create_date" />
+        <result property="updateDate" column="update_date" />
+        <result property="name" column="clc_name" />
+        <result property="totalCount" column="totalCount" />
+    </resultMap>
+
+    <select id="getConsultingCategoryList" resultMap="consultingUpperCategoryResultMap">
+        select
+            cuc.consulting_upper_category_id,
+            cuc.consulting_upper_category_name,
+            cuc.consulting_upper_category_description,
+            cuc.consulting_upper_category_img,
+            cuc.consulting_upper_category_register_id,
+            cuc.create_date,
+            cuc.update_date,
+            (select u.name
+            from tb_user u
+            where u.user_id = cuc.consulting_upper_category_register_id) as cuc_name,
+            (select count(*) from tb_consulting_upper_category) as totalCount,
+            clc.consulting_lower_category_id,
+            clc.consulting_upper_category_id,
+            clc.consulting_lower_category_name,
+            clc.consulting_lower_category_register_id,
+            clc.create_date,
+            clc.update_date,
+            (select u.name
+            from tb_user u
+            where u.user_id = clc.consulting_lower_category_register_id) as clc_name
+        from
+            tb_consulting_upper_category cuc
+            left outer join tb_consulting_lower_category clc on clc.consulting_upper_category_id = cuc.consulting_upper_category_id
+        limit
+            {startIndex}, {limit}
+    </select>
+    <select id="getConsultingLowerCategoryList" resultMap="consultingLowerCategoryResultMap">
+        select
+            clc.consulting_lower_category_id,
+            clc.consulting_upper_category_id,
+            clc.consulting_lower_category_name,
+            clc.consulting_lower_category_register_id,
+            clc.create_date,
+            clc.update_date,
+            (select u.name
+            from tb_user u
+            where u.user_id = clc.consulting_lower_category_register_id) as clc_name,
+            (select count(*) from tb_consulting_lower_category) as totalCount
+        from
+            tb_consulting_lower_category clc
+        where
+            clc.consulting_upper_category_id = #{upperId}
+        limit
+            #{startIndex}, #{limit}
+    </select>
+</mapper>

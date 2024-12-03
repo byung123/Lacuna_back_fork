@@ -53,9 +53,9 @@ public class AuthAspect {
                                     = new FieldError("email", "email", "이미 존재하는 이메일 주소입니다.");
                             bindingResult.addError(fieldError);
                         }
-                        if(!dto.getPassword().equals(dto.getCheckPassword())) {
+                        if(!dto.getPassword().equals(dto.getPasswordCheck())) {
                             FieldError fieldError
-                                    = new FieldError("checkPassword", "checkPassword", "비밀번호를 일치시켜주세요.");
+                                    = new FieldError("passwordCheck", "passwordCheck", "비밀번호를 일치시켜주세요.");
                             bindingResult.addError(fieldError);
                         }
                         break;
@@ -70,13 +70,13 @@ public class AuthAspect {
                         ReqGeneralSigninDto dto = (ReqGeneralSigninDto) arg;
                         if(!authService.isDuplicateUsername(dto.getUsername())) {
                             FieldError fieldError
-                                    = new FieldError("username", "username", "존재하지 않는 계정입니다");
+                                    = new FieldError("username", "username", "ID 또는 비밀번호가 일치하지 않습니다. 다시 확인 부탁드립니다.");
                             bindingResult.addError(fieldError);
                             break;
                         }
                         if(authService.isDifferentPassword(dto)){
                             FieldError fieldError
-                                    = new FieldError("password", "password", "비밀번호가 일치하지 않습니다.");
+                                    = new FieldError("password", "password", "ID 또는 비밀번호가 일치하지 않습니다. 다시 확인 부탁드립니다.");
                             bindingResult.addError(fieldError);
                         }
                         break;

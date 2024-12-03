@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +20,11 @@ public class ConsultingUpperCategory {
     private int consultingUpperCategoryRegisterId;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
+
+    // 서브쿼리용
+    private String name;
+    private int totalCount;
+
+    // 조인용
+    private List<ConsultingLowerCategory> consultingLowerCategory;
 }

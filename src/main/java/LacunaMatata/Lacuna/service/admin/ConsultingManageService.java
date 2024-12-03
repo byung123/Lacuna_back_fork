@@ -1,13 +1,18 @@
 package LacunaMatata.Lacuna.service.admin;
 
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingLowerCategoryListDto;
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
+import LacunaMatata.Lacuna.dto.response.admin.consulting.RespConsultingUpperListDto;
+import LacunaMatata.Lacuna.dto.response.admin.consulting.RespCountAndConsultingUpperCategoryListDto;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ConsultingManageService {
@@ -16,8 +21,30 @@ public class ConsultingManageService {
     private ConsulttingManageMapper consultingManageMapper;
 
     // 컨설팅 상위 분류 목록 출력
-    public void getUpperConsultingList() {
+    public RespCountAndConsultingUpperCategoryListDto getUpperConsultingList(ReqGetConsultingUpperCategoryListDto dto) {
+        int startIndex = (dto.getPage() - 1) * dto.getLimit();
+        Map<String, Object> params = Map.of(
+            "startIndex", startIndex,
+            "limit", dto.getLimit()
+        );
+        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingCategoryList(params);
+        List<RespConsultingUpperListDto> consultingUpperCategorys = new ArrayList<>();
 
+        for (ConsultingUpperCategory consultingUpperCategory : consultingUpperCategoryList) {
+            RespConsultingUpperListDto consultingUpperAndLower = RespConsultingUpperListDto.builder()
+                    .consultingUpperCategoryId(consultingUpperCategory.getConsultingUpperCategoryId())
+                    .consultingUpperCategoryName(consultingUpperCategory.getConsultingUpperCategoryName())
+                    .name(consultingUpperCategory.getName())
+                    .createDate(consultingUpperCategory.getCreateDate())
+                    .build();
+            consultingUpperCategorys.add(consultingUpperAndLower);
+        }
+        int totalCount = consultingUpperCategoryList.isEmpty() ? 0 : consultingUpperCategoryList.get(0).getTotalCount();
+        RespCountAndConsultingUpperCategoryListDto countAndCounsultingUpperCategory = RespCountAndConsultingUpperCategoryListDto.builder()
+                .totalCount(totalCount)
+                .consultingUpperCategory(consultingUpperCategorys)
+                .build();
+        return countAndCounsultingUpperCategory;
     }
 
     // 컨설팅 상위 분류 항목 출력(필터)
@@ -51,8 +78,14 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 하위 분류 목록 출력
-    public void getLowerConsultingList() {
-
+    public String getLowerConsultingList(ReqGetConsultingLowerCategoryListDto dto) {
+        int startIndex = (dto.getPage() - 1) * dto.getLimit();
+        Map<String, Object> params = Map.of(
+            "startIndex", startIndex,
+                "limit", dto.getLimit()
+        );
+//        List<ConsultingLowerCategory> consultingLowerCategoryList = consultingManageMapper.getConsultingLowerCategoryList()
+        return "s";
     }
 
     // 컨설팅 하위 분류 항목 출력 (필터)

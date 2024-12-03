@@ -1,9 +1,12 @@
 package LacunaMatata.Lacuna.controller.admin;
 
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingLowerCategoryListDto;
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqRegistUpperConsultingCategoryDto;
 import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqModifyUpperConsulingCategoryDto;
 import LacunaMatata.Lacuna.service.admin.ConsultingManageService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +29,9 @@ public class ConsultingManageController {
 
     // 컨설팅 상위 분류 목록 출력
     @GetMapping("/upper/list")
-    public ResponseEntity<?> getUpperConsultingListApi() {
-        consultingManageService.getUpperConsultingList();
-        return ResponseEntity.ok().body(null);
+    @ApiOperation(value = "getUpperConsultingListApi")
+    public ResponseEntity<?> getUpperConsultingListApi(ReqGetConsultingUpperCategoryListDto dto) {
+        return ResponseEntity.ok().body(consultingManageService.getUpperConsultingList(dto));
     }
 
     // 컨설팅 상위 분류 항목 출력(필터)
@@ -74,16 +77,16 @@ public class ConsultingManageController {
 
     // 컨설팅 하위 분류 목록 출력
     @GetMapping("/lower/list")
-    public ResponseEntity<?> getLowerConsultingListApi() {
-        consultingManageService.getLowerConsultingList();
-        return ResponseEntity.ok().body(null);
+    public ResponseEntity<?> getLowerConsultingListApi(ReqGetConsultingLowerCategoryListDto dto) {
+        return ResponseEntity.ok().body(consultingManageService.getLowerConsultingList(dto));
     }
 
     // 컨설팅 하위 분류 항목 출력 (필터)
     @GetMapping("/lower/list/filter/{upperId}")
     public ResponseEntity<?> getLowerConsultingListFilter(@PathVariable int upperId) {
         consultingManageService.getLowerConsultingFilter();
-        return ResponseEntity.ok().body(null); }
+        return ResponseEntity.ok().body(null);
+    }
 
     // 컨설팅 하위 분류 항목 등록
     @PostMapping("/lower/regist")

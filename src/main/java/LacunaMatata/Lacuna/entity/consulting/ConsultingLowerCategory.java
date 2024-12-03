@@ -18,4 +18,8 @@ public class ConsultingLowerCategory {
     private int consultingLowerCategoryRegisterId;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
+
+    // 서브쿼리용
+    private String name;
+    private int totalCount;
 }
