@@ -62,35 +62,15 @@ public class AuthService {
                     .build();
             userMapper.saveUser(user);
 
-            int useConditionAgreement = 0;
-            int marketingReceiveAgreement = 0;
-            int thirdPartyInfoSharingAgreement = 0;
-
-            if(dto.getUseConditionAgreement() == true) {
-                useConditionAgreement = 1;
-            } else {
-                useConditionAgreement = 2;
-            }
-            if(dto.getMarketingReceiveAgreement() == true) {
-                marketingReceiveAgreement = 1;
-            } else {
-                marketingReceiveAgreement = 2;
-            }
-            if(dto.getThirdPartyInfoSharingAgreement() == true) {
-                thirdPartyInfoSharingAgreement = 1;
-            } else {
-                thirdPartyInfoSharingAgreement = 2;
-            }
-
             UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
                     .userId(user.getUserId())
                     .birthDate(dto.getBirthDate())
                     .gender(dto.getGender())
                     .phoneNumber(dto.getPhoneNumber())
                     .address(dto.getAddress())
-                    .marketingReceiveAgreement(marketingReceiveAgreement)
-                    .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
-                    .useConditionAgreement(useConditionAgreement)
+                    .marketingReceiveAgreement(dto.getMarketingReceiveAgreement())
+                    .thirdPartyInfoSharingAgreement(dto.getThirdPartyInfoSharingAgreement())
+                    .useConditionAgreement(dto.getUseConditionAgreement())
                     .build();
             userMapper.saveUserOptionalInfo(userOptionalInfo);
 
@@ -150,35 +130,15 @@ public class AuthService {
                     .build();
             userMapper.saveUser(user);
 
-            int useConditionAgreement = 0;
-            int marketingReceiveAgreement = 0;
-            int thirdPartyInfoSharingAgreement = 0;
-
-            if(dto.getUseConditionAgreement() == true) {
-                useConditionAgreement = 1;
-            } else {
-                useConditionAgreement = 2;
-            }
-            if(dto.getMarketingReceiveAgreement() == true) {
-                marketingReceiveAgreement = 1;
-            } else {
-                marketingReceiveAgreement = 2;
-            }
-            if(dto.getThirdPartyInfoSharingAgreement() == true) {
-                thirdPartyInfoSharingAgreement = 1;
-            } else {
-                thirdPartyInfoSharingAgreement = 2;
-            }
-
             UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
                     .userId(user.getUserId())
                     .birthDate(dto.getBirthDate())
                     .gender(dto.getGender())
                     .phoneNumber(dto.getPhoneNumber())
                     .address(dto.getAddress())
-                    .marketingReceiveAgreement(marketingReceiveAgreement)
-                    .thirdPartyInfoSharingAgreement(thirdPartyInfoSharingAgreement)
-                    .useConditionAgreement(useConditionAgreement)
+                    .marketingReceiveAgreement(dto.getMarketingReceiveAgreement())
+                    .thirdPartyInfoSharingAgreement(dto.getThirdPartyInfoSharingAgreement())
+                    .useConditionAgreement(dto.getUseConditionAgreement())
                     .build();
             userMapper.saveUserOptionalInfo(userOptionalInfo);
 
@@ -234,10 +194,12 @@ public class AuthService {
 
     public Boolean sendAuthEmail(ReqAuthEmailDto dto) {
         String toEmail = dto.getToEmail();
+//        if(isDuplicateEmail(toEmail)) {
+//            throw new Exception("이메일이 이미 있어요~");
+//        }
 
         StringBuilder htmlContent = new StringBuilder();
-        htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;"
-         + "width:400px'>");
+        htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;width:400px'>");
         htmlContent.append("<h2>Lacuna 회원가입 이메일 인증 입니다.</h2>");
         htmlContent.append("<h3>아래 인증하기 버튼을 클릭해주세요</h3>");
         htmlContent.append("<a target='_blank' href='http://localhost:8080/api/v1/auth/email?emailtoken=");

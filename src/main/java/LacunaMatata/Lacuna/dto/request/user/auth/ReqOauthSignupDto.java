@@ -16,9 +16,9 @@ public class ReqOauthSignupDto {
     private String phoneNumber;
     private int gender;
     private String address;
-    private Boolean marketingReceiveAgreement;
-    private Boolean thirdPartyInfoSharingAgreement;
-    private Boolean useConditionAgreement;
+    private int marketingReceiveAgreement;
+    private int thirdPartyInfoSharingAgreement;
+    private int useConditionAgreement;
 
     // oauth2로부터 받을 내용
     private String email;
