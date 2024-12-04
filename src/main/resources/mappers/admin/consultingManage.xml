@@ -26,6 +26,19 @@
         <result property="totalCount" column="totalCount" />
     </resultMap>
 
+    <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
+        insert into tb_consulting_upper_category
+        values(
+            default,
+            #{consultingUpperCategoryName},
+            #{consultingUpperCategoryDescription},
+            #{consultingUpperCategoryImg},
+            #{consultingUpperCategoryRegisterId},
+            now(),
+            now()
+        )
+    </insert>
+
     <select id="getConsultingCategoryList" resultMap="consultingUpperCategoryResultMap">
         select
             cuc.consulting_upper_category_id,
@@ -54,6 +67,19 @@
         limit
             {startIndex}, {limit}
     </select>
+    <select id="getConsultingUpperFilter" resultMap="consultingUpperCategoryResultMap">
+        select
+            consulting_upper_category_id,
+            consulting_upper_category_name,
+            consulting_upper_category_description,
+            consulting_upper_category_img,
+            consulting_upper_category_register_id,
+            create_date,
+            update_date
+        from
+            tb_consulting_upper_category
+    </select>
+
     <select id="getConsultingLowerCategoryList" resultMap="consultingLowerCategoryResultMap">
         select
             clc.consulting_lower_category_id,
@@ -70,7 +96,5 @@
             tb_consulting_lower_category clc
         where
             clc.consulting_upper_category_id = #{upperId}
-        limit
-            #{startIndex}, #{limit}
     </select>
 </mapper>

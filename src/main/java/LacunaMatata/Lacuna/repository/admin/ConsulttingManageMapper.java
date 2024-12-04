@@ -9,6 +9,14 @@ import java.util.Map;
 
 @Mapper
 public interface ConsulttingManageMapper {
+    //* 컨설팅 상위 하위 카테고리 관련 mapper */
+    //1. 컨설팅 상위 카테고리 리스트 출력(페이지 리밋 제한 있음)_2024.12.04
     List<ConsultingUpperCategory> getConsultingCategoryList(Map<String, Object> params);
-    List<ConsultingLowerCategory> getConsultingLowerCategoryList(Map<String, Object> params);
+    // 2. 컨설팅 상위 카테고리 리스트 출력(필터용)
+    List<ConsultingUpperCategory> getConsultingUpperFilter();
+    // 3. 컨설팅 상위 카테고리 등록
+    int saveConsultingUpperCategory(ConsultingUpperCategory consultingUpperCategory);
+
+    //6. 컨설팅 상위 카테고리에 따른 하위 카테고리 리스트 출력_2024.12.04
+    List<ConsultingLowerCategory> getConsultingLowerCategoryList(int upperId);
 }

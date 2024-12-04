@@ -246,6 +246,7 @@ public class AuthService {
         return  send(toEmail, "Lacuna 회원가입 이메일 인증 ", htmlContent.toString());
     }
 
+    //
     public Boolean send(String toEmail, String subject, String htmlContent) {
         MimeMessage message = javaMailSender.createMimeMessage();
 

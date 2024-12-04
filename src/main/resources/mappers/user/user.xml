@@ -576,7 +576,7 @@
     </select>
     <select id="findAuthenticationCodeByEmail" resultMap="EmailAuthenticationResultMap">
         select
-            email_authentication_code,
+            email_authentication_id,
             email,
             verification_code,
             expiration_time,
