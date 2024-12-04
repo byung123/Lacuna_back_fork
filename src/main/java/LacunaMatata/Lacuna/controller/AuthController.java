@@ -59,6 +59,13 @@ public class AuthController {
         return ResponseEntity.ok().body(bearerToken);
     }
 
+    // 회원가입 시 이용약관, 마케팅 정보 불러오기
+    @GetMapping("/signup/agreementinfo")
+    @ApiOperation(value = "getAgreementInfoApi")
+    ResponseEntity<?> getAgreementInfo() {
+        return ResponseEntity.ok().body(authService.getAgreementInfo());
+    }
+
     // 일반 회원가입
     @PostMapping("/signup")
     @ApiOperation(value = "회원가입 - 일반 회원가입")

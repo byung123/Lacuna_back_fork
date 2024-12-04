@@ -88,6 +88,14 @@
         <result property="dataType" column="data_type" />
         <result property="value" column="value" />
     </resultMap>
+    <resultMap id="EmailAuthenticationResultMap" type="LacunaMatata.Lacuna.entity.user.EmailAuthentication">
+        <id property="emailAuthenticationId" column="email_authentication_id" />
+        <result property="email" column="email" />
+        <result property="verificationCode" column="verification_code" />
+        <result property="expirationTime" column="expiration_time" />
+        <result property="createdTime" column="created_time" />
+        <result property="isVerified" column="is_verified" />
+    </resultMap>
 
     <insert id="saveUser" useGeneratedKeys="true" keyProperty="userId">
         insert into tb_user
@@ -152,6 +160,17 @@
             #{historyUserId},
             #{password},
             now()
+        )
+    </insert>
+    <insert id="saveEmailAuthentication">
+        insert into tb_email_authentication
+        values(
+            default,
+            #{email},
+            #{verificationCode},
+            #{expirationTime},
+            now(),
+            default
         )
     </insert>
     <update id="modifyLoginDate">
@@ -228,6 +247,17 @@
         where
             username = #{username}
     </update>
+    <update id="modifyEmailVerified">
+        update tb_email_authentication
+        set
+            is_verified = 2
+        where
+            email = #{email}
+            and
+            created_date = (select max(created_date)
+                from tb_email_authentication
+                where email = #{email})
+    </update>
 
     <delete id="deleteUser">
         delete
@@ -257,6 +287,24 @@
         where
             user_id = {userId}
     </delete>
+    <delete id="deleteEmailAuthentication">
+        delete
+        from
+            tb_email_authentication
+        where
+            email = #{email}
+    </delete>
+
+    <select id="getAgreementInfoList" resultMap="SettingResultMap">
+        select
+            setting_id,
+            data_type,
+            value
+        from
+            tb_setting
+        where
+            data_type in ("이용 약관", "개인정보 처리 방침", "마케팅 수신 내용")
+    </select>
     <select id="findLoginHistoryByUserId" resultMap="loginHistoryResultMap">
         select
             *
@@ -265,7 +313,6 @@
         where
             login_user_id = #{userId}
     </select>
-
     <select id="findUserByUserId" resultMap="UserResultMap">
         select
             u.user_id,
@@ -526,5 +573,22 @@
             tb_setting
         where
             data_type in ("Email", "Phone")
+    </select>
+    <select id="findAuthenticationCodeByEmail" resultMap="EmailAuthenticationResultMap">
+        select
+            email_authentication_code,
+            email,
+            verification_code,
+            expiration_time,
+            created_time,
+            is_verified
+        from
+            tb_email_authentication
+        where
+            email = #{email}
+            and
+            created_time = (select max(created_time)
+                from tb_email_authentication
+                where email = #{email})
     </select>
 </mapper>

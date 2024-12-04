@@ -1,6 +1,7 @@
 package LacunaMatata.Lacuna.service;
 
 import LacunaMatata.Lacuna.dto.request.user.auth.*;
+import LacunaMatata.Lacuna.dto.response.user.auth.RespAgreementInfoDto;
 import LacunaMatata.Lacuna.dto.response.user.auth.RespFindUsernameDto;
 import LacunaMatata.Lacuna.entity.Setting;
 import LacunaMatata.Lacuna.entity.user.*;
@@ -82,6 +83,14 @@ public class AuthService {
                     "roleIdList", roleIdList
             );
             userMapper.saveUserRoleMet(params);
+
+            EmailAuthentication emailAuthentication = userMapper.findAuthenticationCodeByEmail(dto.getEmail());
+            if(!emailAuthentication.getEmail().equals(dto.getEmail())) {
+                throw new Exception("인증받은 이메일주소와 회원가입 시의 이메일 주소가 다릅니다. 인증받은 이메일 주소를 기입해주세요.");
+            }
+
+            userMapper.deleteEmailAuthentication(dto.getEmail());
+
         } catch (Exception e) {
             throw new Exception("회원가입 도중 오류가 발생했습니다.");
         }
@@ -162,6 +171,22 @@ public class AuthService {
         }
     }
 
+    // 회원가입할 때 이용약관, 마케팅 정보 불러오기
+    public List<RespAgreementInfoDto> getAgreementInfo() {
+        List<Setting> agreementInfo = userMapper.getAgreementInfoList();
+        List<RespAgreementInfoDto> agreementInfoList = new ArrayList<>();
+
+        for(int i = 0; i < agreementInfo.size(); i++) {
+            RespAgreementInfoDto agreement = RespAgreementInfoDto.builder()
+                    .settingId(agreementInfo.get(i).getSettingId())
+                    .dataType(agreementInfo.get(i).getDataType())
+                    .value(agreementInfo.get(i).getValue())
+                    .build();
+            agreementInfoList.add(agreement);
+        }
+        return agreementInfoList;
+    }
+
     // username 중복 되는 지 검사 -> AuthAspect로 들어감
     public Boolean isDuplicateUsername(String username) {
         User user = userMapper.findUserByUsername(username);
@@ -198,13 +223,21 @@ public class AuthService {
             throw new Exception("이메일이 이미 있어요~");
         }
 
-        StringBuilder code = generateAuthenticationCode();
+        StringBuilder code = generateAuthenticationCode(6);
         String authenticationCode = code.toString();
+        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
+
+        Map<String, Object> params = Map.of(
+            "email", toEmail,
+            "verificationCode", authenticationCode,
+            "expirationTime", expirationTime
+        );
+        userMapper.saveEmailAuthentication(params);
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;width:400px'>");
         htmlContent.append("<h2>Lacuna 회원가입 이메일 인증 입니다.</h2>");
-        htmlContent.append("<h3>아래 인증번호를 인증번호 입력란에 기입해주시길 바랍니다.</h3>");
+        htmlContent.append("<h3>아래 인증번호를 이메일 인증번호 입력란에 기입해주시길 바랍니다.</h3>");
         htmlContent.append("<h3>");
         htmlContent.append(authenticationCode);
         htmlContent.append("</h3>");
@@ -232,7 +265,19 @@ public class AuthService {
         return true;
     }
 
-    public Boolean emailAuthentication(ReqEmailAuthenticationDto dto) {
+    public Boolean emailAuthentication(ReqEmailAuthenticationDto dto) throws Exception {
+        String email = dto.getEmail();
+        EmailAuthentication emailAuthentication = userMapper.findAuthenticationCodeByEmail(email);
+
+        if(emailAuthentication.getExpirationTime().isBefore(LocalDateTime.now())) {
+            throw new Exception("이메일 인증 시간이 만료되었습니다. 다시 시도해주세요.");
+        }
+
+        if(!emailAuthentication.getVerificationCode().equals(dto.getAuthenticationCode())) {
+            throw new Exception("인증코드가 일치하지 않습니다. 다시 확인해주세요.");
+        }
+        userMapper.modifyEmailVerified(email);
+
         return true;
     }
 
@@ -293,7 +338,7 @@ public class AuthService {
             throw new UsernameNotFoundException("해당 계정의 정보를 찾을 수 없습니다. 입력하신 정보를 다시 한 번 확인하세요.");
         }
 
-        StringBuilder code = generateAuthenticationCode();
+        StringBuilder code = generateAuthenticationCode(10);
         String authenticationCode = code.toString();
         Map<String, Object> params2 = Map.of(
             "userId", user.getUserId(),
@@ -378,10 +423,9 @@ public class AuthService {
         return maskedInfo;
     }
 
-    private StringBuilder generateAuthenticationCode() {
+    private StringBuilder generateAuthenticationCode(int passwordLength) {
         // 임시 비밀번호 생성
         String tempCharacter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        int passwordLength = 10;
 
         SecureRandom randomNumber = new SecureRandom();
         StringBuilder tempCode = new StringBuilder();

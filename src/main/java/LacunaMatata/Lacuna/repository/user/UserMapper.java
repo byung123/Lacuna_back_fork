@@ -54,6 +54,14 @@ public interface UserMapper {
     int cancelSystemPay(int orderId);
     // 12. 마이페이지 - 주문 취소 (계좌이체)
     int cancelMyOrder(int orderId);
+    // 13-1. 이메일 인증번호 정보 저장_2024.12.04
+    int saveEmailAuthentication(Map<String, Object> params);
+    // 13-2. 이메일로 인증번호 찾기_2024.12.04
+    EmailAuthentication findAuthenticationCodeByEmail(String email);
+    // 13-3. 이메일 인증 통과시 isVerified 수정_2024.12.04
+    int modifyEmailVerified(String email);
+    // 13-4. 이메일 인증 데이터 삭제(회원가입 완료시)_2024.12.04
+    int deleteEmailAuthentication(String email);
 
     /** 공통으로 사용할 userMapper */
     // 1. userId로 User 정보 찾기
@@ -84,4 +92,6 @@ public interface UserMapper {
     User checkAuthenticationCode(String username);
     // 10-4. 비밀번호 찾기시 - 새 비밀번호 바꾸기
     int modifyNewPassword(Map<String, Object> params);
+    // 11. 관리자 이용약관, 마케팅 등 정보 가져오기
+    List<Setting> getAgreementInfoList();
 }
