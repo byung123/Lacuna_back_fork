@@ -16,6 +16,12 @@ public interface ConsulttingManageMapper {
     int saveConsultingUpperCategory(ConsultingUpperCategory consultingUpperCategory);
     // 3. 컨설팅 상위 카테고리 수정 모달창 출력_2024.12.04
     ConsultingUpperCategory getConsultingUpperCategory(int upperId);
+    // 4. 컨설팅 상위 카테고리 수정_2024.12.04
+    int modifyConsultingUpperCategory(ConsultingUpperCategory consultingUpperCategory);
+    // 5. 컨설팅 상위 카테고리 단일 삭제
+    int deleteConsultingUpperCategory(int upperId);
+    // 6. 컨설팅 상위 카테고리 복수개 삭제
+    int deleteConsultingUpperCategoryList();
 
     // 6. 컨설팅 상위 카테고리 리스트 출력(필터용)_2024.12.04
     List<ConsultingUpperCategory> getConsultingUpperFilter();

@@ -1,7 +1,9 @@
 package LacunaMatata.Lacuna.controller.admin;
 
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqDeleteConsultingUpperCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqRegistUpperConsultingCategoryDto;
+import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqDeleteMbtiCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqModifyUpperConsulingCategoryDto;
 import LacunaMatata.Lacuna.service.admin.ConsultingManageService;
 import io.swagger.annotations.Api;
@@ -42,36 +44,40 @@ public class ConsultingManageController {
 
     // 컨설팅 상위 분류 항목 등록
     @PostMapping("/upper/regist")
+    @ApiOperation(value = "registUpperConsultingApi")
     public ResponseEntity<?> registUpperConsulting(@ModelAttribute ReqRegistUpperConsultingCategoryDto dto) throws Exception {
         consultingManageService.registUpperConsulting(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 상위 분류 항목 출력
+    // 컨설팅 상위 분류 수정 모달창 출력
     @GetMapping("/upper/{upperId}")
+    @ApiOperation(value = "getUpperConsultingApi")
     public ResponseEntity<?> getUpperConsulting(@PathVariable int upperId) {
-        consultingManageService.getUpperConsulting();
-        return ResponseEntity.ok().body(true);
+        return ResponseEntity.ok().body(consultingManageService.getUpperConsulting(upperId));
     }
 
     // 컨설팅 상위 분류 항목 수정
-    @PutMapping("/upper/modify/{upperId}")
-    public ResponseEntity<?> modifyUpperConsulting(@RequestBody ReqModifyUpperConsulingCategoryDto dto) {
-        consultingManageService.modifyUpperConsulting();
+    @PostMapping("/upper/modify/{upperId}")
+    @ApiOperation(value = "modifyUpperConsultingApi")
+    public ResponseEntity<?> modifyUpperConsulting(@ModelAttribute ReqModifyUpperConsulingCategoryDto dto, @PathVariable int upperId) throws Exception {
+        consultingManageService.modifyUpperConsulting(dto, upperId);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 상위 분류 항목 삭제
     @DeleteMapping("/upper/delete/{upperId}")
+    @ApiOperation(value = "deleteUpperConsultingApi")
     public ResponseEntity<?> deleteUpperConsulting(@PathVariable int upperId) {
-        consultingManageService.deleteUpperConsulting();
+        consultingManageService.deleteUpperConsulting(upperId);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 상위 분류 항목 복수개 삭제
     @DeleteMapping("/upper/delete")
-    public ResponseEntity<?> deleteUpperConsultingList() {
-        consultingManageService.deleteUpperConsultingList();
+    @ApiOperation(value = "deleteUpperConsultingListApi")
+    public ResponseEntity<?> deleteUpperConsultingList(@RequestBody ReqDeleteConsultingUpperCategoryListDto dto) {
+        consultingManageService.deleteUpperConsultingList(dto);
         return ResponseEntity.ok().body(true);
     }
 

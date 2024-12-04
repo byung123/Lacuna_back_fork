@@ -39,6 +39,25 @@
         )
     </insert>
 
+    <update id="modifyConsultingUpperCategory">
+        update tb_consulting_upper_category
+        set
+            consulting_upper_category_name = #{consultingUpperCategoryName},
+            consulting_upper_category_description = #{consultingUpperCategoryDescription},
+            consulting_upper_category_img = #{consultingUpperCategoryImg},
+            update_date = now()
+        where
+            consulting_upper_category_id = #{consultingUpperCategoryId}
+    </update>
+
+    <delete id="deleteConsultingUpperCategory">
+        delete
+        from
+            tb_consulting_upper_category
+        where
+            consulting_upper_category_id = #{upperId}
+    </delete>
+
     <select id="getConsultingCategoryList" resultMap="consultingUpperCategoryResultMap">
         select
             cuc.consulting_upper_category_id,
@@ -78,6 +97,20 @@
             update_date
         from
             tb_consulting_upper_category
+    </select>
+    <select id="getConsultingUpperCategory" resultMap="consultingUpperCategoryResultMap">
+        select
+            consulting_upper_category_id,
+            consulting_upper_category_name,
+            consulting_upper_category_description,
+            consulting_upper_category_img,
+            consulting_upper_category_register_id,
+            create_date,
+            update_date
+        from
+            tb_consulting_upper_category
+        where
+            consulting_upper_category_id = #{upperId}
     </select>
 
     <select id="getConsultingLowerCategoryList" resultMap="consultingLowerCategoryResultMap">

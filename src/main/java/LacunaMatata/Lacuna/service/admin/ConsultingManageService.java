@@ -1,10 +1,14 @@
 package LacunaMatata.Lacuna.service.admin;
 
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqDeleteConsultingUpperCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqRegistUpperConsultingCategoryDto;
+import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqDeleteMbtiCategoryListDto;
+import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqModifyUpperConsulingCategoryDto;
 import LacunaMatata.Lacuna.dto.response.admin.consulting.*;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
+import LacunaMatata.Lacuna.entity.mbti.MbtiCategory;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +84,7 @@ public class ConsultingManageService {
 
             // 2. 신규 이미지 저장
             if (insertImgs != null && !insertImgs.get(0).isEmpty()) {
-                insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "mbti/");
+                insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "consultingUpper/");
             }
 
             ConsultingUpperCategory consultingUpperCategory = ConsultingUpperCategory.builder()
@@ -91,27 +95,78 @@ public class ConsultingManageService {
                     .build();
             consultingManageMapper.saveConsultingUpperCategory(consultingUpperCategory);
         } catch (Exception e) {
-            throw new Exception("상품을 등록하는 도중 문제가 발생했습니다. (서버오류)");
+            throw new Exception("컨설팅 상위분류를 등록하는 도중 문제가 발생했습니다. (서버오류)");
         }
     }
 
     // 컨설팅 상위 분류 수정 모달창 출력
-    public void getUpperConsulting() {
-
+    public RespConsultingUpperCategoryModifyDto getUpperConsulting(int upperId) {
+        ConsultingUpperCategory consultingUpperCategory = consultingManageMapper.getConsultingUpperCategory(upperId);
+        RespConsultingUpperCategoryModifyDto consultingUpperCategoryModify = RespConsultingUpperCategoryModifyDto.builder()
+                .consultingUpperCategoryId(consultingUpperCategory.getConsultingUpperCategoryId())
+                .consultingUpperCategoryName(consultingUpperCategory.getConsultingUpperCategoryName())
+                .consultingUpperCategoryDescription(consultingUpperCategory.getConsultingUpperCategoryDescription())
+                .consultingUpperCategoryImg(consultingUpperCategory.getConsultingUpperCategoryImg())
+                .build();
+        return consultingUpperCategoryModify;
     }
 
     // 컨설팅 상위 분류 항목 수정
-    public void modifyUpperConsulting() {
+    public void modifyUpperConsulting(ReqModifyUpperConsulingCategoryDto dto, int upperId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        int registerId = principalUser.getId();
 
+        try {
+            /* 이미지 삭제 후 이미지 추가 */
+            // 단계 : 1. 신규 등록, 삭제 공간 생성, 2. 이미지 경로 DB 삭제 및 DB 파일 삭제 3. 신규 데이터 등록
+
+            // 1. 최종 수정될 imgPath 공간 생성
+            String finalImgPath = dto.getPrevImgPath();
+
+            // 2. 이미지 신규 등록할 공간 생성
+            List<MultipartFile> insertImgs = dto.getInsertImgs();
+
+            // 3. 이미지 삭제할 공간 생성
+            String deleteImgPath = dto.getDeleteImgPath();
+
+            // 4. 물리 파일 삭제
+            if(deleteImgPath != null && !deleteImgPath.isEmpty()) {
+                deleteImgUrl(deleteImgPath);
+                finalImgPath = null;
+            }
+
+            // 이미지 등록
+            // 1. 이미지 수정할 공간 생성
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                finalImgPath = registerImgUrl(insertImgs.get(0), "consultingUpper/");
+            }
+
+            ConsultingUpperCategory consultingUpperCategory = ConsultingUpperCategory.builder()
+                    .consultingUpperCategoryId(dto.getConsultingUpperCategoryId())
+                    .consultingUpperCategoryName(dto.getConsultingUpperCategoryName())
+                    .consultingUpperCategoryDescription(dto.getConsultingUpperCategoryDescription())
+                    .consultingUpperCategoryImg(finalImgPath)
+                    .consultingUpperCategoryRegisterId(registerId)
+                    .build();
+            consultingManageMapper.modifyConsultingUpperCategory(consultingUpperCategory);
+
+        } catch (Exception e) {
+            throw new Exception("컨설팅 상위분류 수정 중 오류가 발생했습니다.");
+        }
     }
 
     // 컨설팅 상위 분류 항목 삭제
-    public void deleteUpperConsulting() {
-
+    public void deleteUpperConsulting(int upperId) {
+        consultingManageMapper.deleteConsultingUpperCategory(upperId);
     }
 
     // 컨설팅 상위 분류 항목 복수개 삭제
-    public void deleteUpperConsultingList() {
+    public void deleteUpperConsultingList(ReqDeleteConsultingUpperCategoryListDto dto) {
+        List<Integer> consultingUpperCategoryIdList = dto.getConsultingUpperCategoryIdList();
 
     }
 
