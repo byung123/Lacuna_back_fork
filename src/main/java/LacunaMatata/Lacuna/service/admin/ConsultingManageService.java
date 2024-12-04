@@ -95,7 +95,7 @@ public class ConsultingManageService {
         }
     }
 
-    // 컨설팅 상위 분류 항목 출력
+    // 컨설팅 상위 분류 수정 모달창 출력
     public void getUpperConsulting() {
 
     }
