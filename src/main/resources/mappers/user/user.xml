@@ -248,15 +248,18 @@
             username = #{username}
     </update>
     <update id="modifyEmailVerified">
+        with tb_recursive_email_authentication as (
+            select max(created_time) as max_created_time
+            from tb_email_authentication
+            where email = #{email}
+        )
         update tb_email_authentication
         set
             is_verified = 2
         where
             email = #{email}
             and
-            created_time = (select max(created_time)
-                from tb_email_authentication
-                where email = #{email})
+            created_time = (select max_created_time from tb_recursive_email_authentication)
     </update>
 
     <delete id="deleteUser">
@@ -575,6 +578,11 @@
             data_type in ("Email", "Phone")
     </select>
     <select id="findAuthenticationCodeByEmail" resultMap="EmailAuthenticationResultMap">
+        with tb_recursive_email_authentication as (
+            select max(created_time) as max_created_time
+            from tb_email_authentication
+            where email = #{email}
+        )
         select
             email_authentication_id,
             email,
@@ -587,8 +595,6 @@
         where
             email = #{email}
             and
-            created_time = (select max(created_time)
-                from tb_email_authentication
-                where email = #{email})
+            created_time = (select max_created_time from tb_recursive_email_authentication)
     </select>
 </mapper>
