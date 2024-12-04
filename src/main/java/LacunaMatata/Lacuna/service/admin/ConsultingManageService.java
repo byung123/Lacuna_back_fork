@@ -61,21 +61,6 @@ public class ConsultingManageService {
         return countAndCounsultingUpperCategory;
     }
 
-    // 컨설팅 상위 분류 항목 출력(필터)
-    public List<RespConsultingUpperCategoryFilterDto> getUpperConsultingFilter() {
-        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingUpperFilter();
-        List<RespConsultingUpperCategoryFilterDto> consultingUpperFilter = new ArrayList<>();
-
-        for(ConsultingUpperCategory consultingUpper : consultingUpperCategoryList) {
-            RespConsultingUpperCategoryFilterDto consultingUpperCategory = RespConsultingUpperCategoryFilterDto.builder()
-                    .consultingUpperCategoryId(consultingUpper.getConsultingUpperCategoryId())
-                    .consultingUpperCategoryName(consultingUpper.getConsultingUpperCategoryName())
-                    .build();
-            consultingUpperFilter.add(consultingUpperCategory);
-        }
-        return consultingUpperFilter;
-    }
-
     // 컨설팅 상위 분류 항목 등록
     @Transactional(rollbackFor = Exception.class)
     public void registUpperConsulting(ReqRegistUpperConsultingCategoryDto dto) throws Exception {
@@ -151,6 +136,21 @@ public class ConsultingManageService {
                 .build();
 
         return countAndLowerCategory;
+    }
+
+    // 컨설팅 상위 분류 항목 출력(필터)
+    public List<RespConsultingUpperCategoryFilterDto> getUpperConsultingFilter() {
+        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingUpperFilter();
+        List<RespConsultingUpperCategoryFilterDto> consultingUpperFilter = new ArrayList<>();
+
+        for(ConsultingUpperCategory consultingUpper : consultingUpperCategoryList) {
+            RespConsultingUpperCategoryFilterDto consultingUpperCategory = RespConsultingUpperCategoryFilterDto.builder()
+                    .consultingUpperCategoryId(consultingUpper.getConsultingUpperCategoryId())
+                    .consultingUpperCategoryName(consultingUpper.getConsultingUpperCategoryName())
+                    .build();
+            consultingUpperFilter.add(consultingUpperCategory);
+        }
+        return consultingUpperFilter;
     }
 
     // 컨설팅 하위 분류 항목 출력 (필터)

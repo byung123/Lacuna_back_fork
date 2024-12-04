@@ -246,26 +246,6 @@ public class AuthService {
         return  send(toEmail, "Lacuna 회원가입 이메일 인증 ", htmlContent.toString());
     }
 
-    //
-    public Boolean send(String toEmail, String subject, String htmlContent) {
-        MimeMessage message = javaMailSender.createMimeMessage();
-
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            message.setText(htmlContent, "utf-8", "html");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        javaMailSender.send(message);
-        return true;
-    }
-
     public Boolean emailAuthentication(ReqEmailAuthenticationDto dto) throws Exception {
         String email = dto.getEmail();
         EmailAuthentication emailAuthentication = userMapper.findAuthenticationCodeByEmail(email);
@@ -437,6 +417,26 @@ public class AuthService {
         }
 
         return tempCode;
+    }
+
+    //
+    public Boolean send(String toEmail, String subject, String htmlContent) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            message.setText(htmlContent, "utf-8", "html");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        javaMailSender.send(message);
+        return true;
     }
 
     // 인증 성공 화면

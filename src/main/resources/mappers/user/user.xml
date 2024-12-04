@@ -254,7 +254,7 @@
         where
             email = #{email}
             and
-            created_date = (select max(created_date)
+            created_time = (select max(created_time)
                 from tb_email_authentication
                 where email = #{email})
     </update>
