@@ -22,4 +22,5 @@ public class ConsultingLowerCategory {
     // 서브쿼리용
     private String name;
     private int totalCount;
+    private String consultingUpperCategoryName;
 }

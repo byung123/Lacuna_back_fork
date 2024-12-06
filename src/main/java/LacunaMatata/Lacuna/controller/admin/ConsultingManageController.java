@@ -1,10 +1,6 @@
 package LacunaMatata.Lacuna.controller.admin;
 
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqDeleteConsultingUpperCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqRegistUpperConsultingCategoryDto;
-import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqDeleteMbtiCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqModifyUpperConsulingCategoryDto;
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.*;
 import LacunaMatata.Lacuna.service.admin.ConsultingManageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,7 +64,7 @@ public class ConsultingManageController {
     // 컨설팅 상위 분류 항목 삭제
     @DeleteMapping("/upper/delete/{upperId}")
     @ApiOperation(value = "deleteUpperConsultingApi")
-    public ResponseEntity<?> deleteUpperConsulting(@PathVariable int upperId) {
+    public ResponseEntity<?> deleteUpperConsulting(@PathVariable int upperId) throws Exception {
         consultingManageService.deleteUpperConsulting(upperId);
         return ResponseEntity.ok().body(true);
     }
@@ -76,7 +72,7 @@ public class ConsultingManageController {
     // 컨설팅 상위 분류 항목 복수개 삭제
     @DeleteMapping("/upper/delete")
     @ApiOperation(value = "deleteUpperConsultingListApi")
-    public ResponseEntity<?> deleteUpperConsultingList(@RequestBody ReqDeleteConsultingUpperCategoryListDto dto) {
+    public ResponseEntity<?> deleteUpperConsultingList(@RequestBody ReqDeleteConsultingUpperCategoryListDto dto) throws Exception {
         consultingManageService.deleteUpperConsultingList(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -96,36 +92,35 @@ public class ConsultingManageController {
 
     // 컨설팅 하위 분류 항목 등록
     @PostMapping("/lower/regist")
-    public ResponseEntity<?> registLowerConsulting() {
-        consultingManageService.registLowerConsulting();
+    public ResponseEntity<?> registLowerConsulting(@RequestBody ReqRegistLowerConsultingCategoryDto dto) throws Exception {
+        consultingManageService.registLowerConsulting(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 하위 분류 항목 출력
-    @GetMapping("/lower/{upperId}")
-    public ResponseEntity<?> getLowerConsulting(@PathVariable int upperId) {
-        consultingManageService.getLowerConsulting();
-        return ResponseEntity.ok().body(true);
+    // 컨설팅 하위 분류 수정 모달창 출력
+    @GetMapping("/lower/{lowerId}")
+    public ResponseEntity<?> getLowerConsulting(@PathVariable int lowerId) {
+        return ResponseEntity.ok().body(consultingManageService.getLowerConsulting(lowerId));
     }
 
     // 컨설팅 하위 분류 항목 수정
-    @PutMapping("/lower/modify/{upperId}")
-    public ResponseEntity<?> modifyLowerConsulting() {
-        consultingManageService.modifyLowerConsulting();
+    @PutMapping("/lower/modify/{lowerId}")
+    public ResponseEntity<?> modifyLowerConsulting(@PathVariable int lowerId, @RequestBody ReqModifyLowerConsultingCategoryDto dto) throws Exception {
+        consultingManageService.modifyLowerConsulting(dto);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 하위 분류 항목 삭제
     @DeleteMapping("/lower/delete/{upperId}")
-    public ResponseEntity<?> deleteLowerConsulting(@PathVariable int upperId) {
-        consultingManageService.deleteLowerConsulting();
+    public ResponseEntity<?> deleteLowerConsulting(@PathVariable int lowerId) throws Exception {
+        consultingManageService.deleteLowerConsulting(lowerId);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 하위 분류 항목 복수개 삭제
     @DeleteMapping("/lower/delete")
-    public ResponseEntity<?> deleteLowerConsultingList() {
-        consultingManageService.deleteLowerConsultingList();
+    public ResponseEntity<?> deleteLowerConsultingList(@RequestBody ReqDeleteConsultingLowerCategoryListDto dto) throws Exception {
+        consultingManageService.deleteLowerConsultingList(dto);
         return ResponseEntity.ok().body(true);
     }
 

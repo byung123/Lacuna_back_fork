@@ -18,13 +18,22 @@ public interface ConsulttingManageMapper {
     ConsultingUpperCategory getConsultingUpperCategory(int upperId);
     // 4. 컨설팅 상위 카테고리 수정_2024.12.04
     int modifyConsultingUpperCategory(ConsultingUpperCategory consultingUpperCategory);
-    // 5. 컨설팅 상위 카테고리 단일 삭제
+    // 5. 컨설팅 상위 카테고리 단일 삭제_2024.12.04
     int deleteConsultingUpperCategory(int upperId);
-    // 6. 컨설팅 상위 카테고리 복수개 삭제
-    int deleteConsultingUpperCategoryList();
-
-    // 6. 컨설팅 상위 카테고리 리스트 출력(필터용)_2024.12.04
+    // 6. 컨설팅 상위 카테고리 복수개 삭제_2024.12.04
+    int deleteConsultingUpperCategoryList(List<Integer> upperCategoryIdList);
+    // 7. 컨설팅 상위 카테고리 리스트 출력(필터용, 하위 카테고리 등록 모달창 출력)_2024.12.04
     List<ConsultingUpperCategory> getConsultingUpperFilter();
-    // 7. 컨설팅 상위 카테고리에 따른 하위 카테고리 리스트 출력_2024.12.04
+    // 8. 컨설팅 상위 카테고리에 따른 하위 카테고리 리스트 출력_2024.12.04
     List<ConsultingLowerCategory> getConsultingLowerCategoryList(int upperId);
+    // 9. 컨설팅 하위 카테고리 등록_2024_12_06
+    int saveConsultingLowerCategory(ConsultingLowerCategory consultingLowerCategory);
+    // 10. 컨설팅 하위 카테고리 수정 모달창 출력_2024.12.06
+    ConsultingLowerCategory getConsultingLowerCategory(int lowerId);
+    // 11. 컨설팅 하위 카테고리 수정_2024.12.06
+    int modifyConsultingLowerCategory(ConsultingLowerCategory consultingLowerCategory);
+    // 12. 컨설팅 하위 카테고리 단일 삭제_2024.12.06
+    int deleteConsultingLowerCategory(int upperId);
+    // 13. 컨설팅 하위 카테고리 복수개 삭제_2024.12.06
+    int deleteConsultingLowerCategoryList(List<Integer> lowerCategoryIdList);
 }

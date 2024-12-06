@@ -1,4 +1,4 @@
-package LacunaMatata.Lacuna.dto.request.admin.mbti;
+package LacunaMatata.Lacuna.dto.request.admin.Consulting;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

@@ -24,6 +24,7 @@
         <result property="updateDate" column="update_date" />
         <result property="name" column="clc_name" />
         <result property="totalCount" column="totalCount" />
+        <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
     </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
@@ -34,6 +35,17 @@
             #{consultingUpperCategoryDescription},
             #{consultingUpperCategoryImg},
             #{consultingUpperCategoryRegisterId},
+            now(),
+            now()
+        )
+    </insert>
+    <insert id="saveConsultingLowerCategory" useGeneratedKeys="true" keyProperty="consultingLowerCategoryId">
+        insert into tb_consulting_lower_category
+        values(
+            default,
+            #{consultingUpperCategoryId},
+            #{consultingLowerCategoryName},
+            #{consultingLowerCategoryRegisterId},
             now(),
             now()
         )
@@ -49,6 +61,14 @@
         where
             consulting_upper_category_id = #{consultingUpperCategoryId}
     </update>
+    <update id="modifyConsultingLowerCategory">
+        update tb_consulting_lower_category
+        set
+            consulting_lower_category_name = #{consultingLowerCategoryName},
+            update_date = now()
+        where
+            consulting_lower_category_id = #{consultingLowerCategoryId}
+    </update>
 
     <delete id="deleteConsultingUpperCategory">
         delete
@@ -56,6 +76,33 @@
             tb_consulting_upper_category
         where
             consulting_upper_category_id = #{upperId}
+    </delete>
+    <delete id="deleteConsultingUpperCategoryList">
+        delete
+        from
+            tb_consulting_upper_category
+        where
+            consulting_upper_category_id in
+            <foreach item="upperId" collection="upperCategoryIdList" open="(" separator="," close=")">
+                #{upperId}
+            </foreach>
+    </delete>
+    <delete id="deleteConsultingLowerCategory">
+        delete
+        from
+            tb_consulting_lower_category
+        where
+            consulting_lower_category_id = #{lowerId}
+    </delete>
+    <delete id="deleteConsultingLowerCategoryList">
+        delete
+        from
+            tb_consulting_lower_category
+        where
+            consulting_lower_category_id in
+            <foreach item="lowerId" collection="lowerCategoryIdList" open="(" separator="," close=")">
+                #{lowerId}
+            </foreach>
     </delete>
 
     <select id="getConsultingCategoryList" resultMap="consultingUpperCategoryResultMap">
@@ -129,5 +176,24 @@
             tb_consulting_lower_category clc
         where
             clc.consulting_upper_category_id = #{upperId}
+    </select>
+    <select id="getConsultingLowerCategory" resultMap="consultingLowerCategoryResultMap">
+        select
+            clc.consulting_lower_category_id,
+            clc.consulting_upper_category_id,
+            clc.consulting_lower_category_name,
+            clc.consulting_lower_category_register_id,
+            clc.create_date,
+            clc.update_date,
+            (select u.name
+            from tb_user u
+            where u.user_id = clc.consulting_lower_category_register_id) as clc_name,
+            (select cuc.consulting_upper_category_name
+            from tb_consulting_upper_category cuc
+            where cuc.consulting_upper_category_id = clc.consulting_upper_category_id) as consultingUpperCategoryName
+        from
+            tb_consulting_lower_category clc
+        where
+            clc.consulting_lower_category_id = #{lowerId}
     </select>
 </mapper>

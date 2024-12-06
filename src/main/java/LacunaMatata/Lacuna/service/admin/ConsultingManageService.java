@@ -1,14 +1,9 @@
 package LacunaMatata.Lacuna.service.admin;
 
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqDeleteConsultingUpperCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqGetConsultingUpperCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.Consulting.ReqRegistUpperConsultingCategoryDto;
-import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqDeleteMbtiCategoryListDto;
-import LacunaMatata.Lacuna.dto.request.admin.mbti.ReqModifyUpperConsulingCategoryDto;
+import LacunaMatata.Lacuna.dto.request.admin.Consulting.*;
 import LacunaMatata.Lacuna.dto.response.admin.consulting.*;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
-import LacunaMatata.Lacuna.entity.mbti.MbtiCategory;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -160,14 +155,28 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 상위 분류 항목 삭제
-    public void deleteUpperConsulting(int upperId) {
+    public void deleteUpperConsulting(int upperId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         consultingManageMapper.deleteConsultingUpperCategory(upperId);
     }
 
     // 컨설팅 상위 분류 항목 복수개 삭제
-    public void deleteUpperConsultingList(ReqDeleteConsultingUpperCategoryListDto dto) {
-        List<Integer> consultingUpperCategoryIdList = dto.getConsultingUpperCategoryIdList();
+    public void deleteUpperConsultingList(ReqDeleteConsultingUpperCategoryListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        List<Integer> consultingUpperCategoryIdList = dto.getConsultingUpperCategoryIdList();
+        consultingManageMapper.deleteConsultingUpperCategoryList(consultingUpperCategoryIdList);
     }
 
     // 컨설팅 하위 분류 목록 출력
@@ -214,28 +223,71 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 하위 분류 항목 등록
-    public void registLowerConsulting() {
+    public void registLowerConsulting(ReqRegistLowerConsultingCategoryDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        int registerId = principalUser.getId();
+
+        ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
+                .consultingUpperCategoryId(dto.getConsultingUpperCategoryId())
+                .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
+                .consultingLowerCategoryRegisterId(registerId)
+                .build();
+        consultingManageMapper.saveConsultingLowerCategory(consultingLowerCategory);
     }
 
-    // 컨설팅 하위 분류 항목 출력
-    public void getLowerConsulting() {
-
+    // 컨설팅 하위 분류 수정 모달창 항목 출력
+    public RespConsultingLowerCategoryModifyDto getLowerConsulting(int lowerId) {
+        ConsultingLowerCategory lowerCategory = consultingManageMapper.getConsultingLowerCategory(lowerId);
+        RespConsultingLowerCategoryModifyDto consultingLowerCategory = RespConsultingLowerCategoryModifyDto.builder()
+                .consultingLowerCategoryId(lowerCategory.getConsultingLowerCategoryId())
+                .consultingUpperCategoryName(lowerCategory.getConsultingUpperCategoryName())
+                .consultingLowerCategoryName(lowerCategory.getConsultingLowerCategoryName())
+                .build();
+        return consultingLowerCategory;
     }
 
     // 컨설팅 하위 분류 항목 수정
-    public void modifyLowerConsulting() {
+    public void modifyLowerConsulting(ReqModifyLowerConsultingCategoryDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
+                .consultingLowerCategoryId(dto.getConsultingLowerCategoryId())
+                .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
+                .build();
+        consultingManageMapper.modifyConsultingLowerCategory(consultingLowerCategory);
     }
 
     // 컨설팅 하위 분류 항목 삭제
-    public void deleteLowerConsulting() {
+    public void deleteLowerConsulting(int lowerId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        consultingManageMapper.deleteConsultingLowerCategory(lowerId);
     }
 
     // 컨설팅 하위 분류 항목 복수개 삭제
-    public void deleteLowerConsultingList() {
+    public void deleteLowerConsultingList(ReqDeleteConsultingLowerCategoryListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        List<Integer> consultingLowerCategoryIdList = dto.getConsultingLowerCategoryIdList();
+        consultingManageMapper.deleteConsultingLowerCategoryList(consultingLowerCategoryIdList);
     }
 
     // 컨설팅 설문지 목록 출력
