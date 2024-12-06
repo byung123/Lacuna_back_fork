@@ -1,6 +1,7 @@
 package LacunaMatata.Lacuna.repository.admin;
 
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 public interface ConsulttingManageMapper {
     //* 컨설팅 상위 하위 카테고리 관련 mapper */
     // 1. 컨설팅 상위 카테고리 리스트 출력(페이지 리밋 제한 있음)_2024.12.04
-    List<ConsultingUpperCategory> getConsultingCategoryList(Map<String, Object> params);
+    List<ConsultingUpperCategory> getConsultingCategoryList();
     // 2. 컨설팅 상위 카테고리 등록_2024.12.04
     int saveConsultingUpperCategory(ConsultingUpperCategory consultingUpperCategory);
     // 3. 컨설팅 상위 카테고리 수정 모달창 출력_2024.12.04
@@ -36,4 +37,9 @@ public interface ConsulttingManageMapper {
     int deleteConsultingLowerCategory(int upperId);
     // 13. 컨설팅 하위 카테고리 복수개 삭제_2024.12.06
     int deleteConsultingLowerCategoryList(List<Integer> lowerCategoryIdList);
+
+    /** 컨설팅 설문지 관련 Mapper */
+    // 1. 컨설팅 설문지 리스트 출력_2024.12.06
+    List<ConsultingSurveyInfo> getConsultingSurveyList(Map<String, Object> params);
+
 }

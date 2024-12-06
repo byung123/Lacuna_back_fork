@@ -10,7 +10,7 @@ public class ReqOauthSignupDto {
     // 직접 입력받을 내용
     private String username;
     private String password;
-    private String checkPassword;
+    private String passwordCheck;
     private String name;
     private Date birthDate;
     private String phoneNumber;

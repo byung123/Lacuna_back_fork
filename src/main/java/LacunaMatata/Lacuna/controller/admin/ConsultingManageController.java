@@ -27,8 +27,8 @@ public class ConsultingManageController {
     // 컨설팅 상위 분류 목록 출력
     @GetMapping("/upper/list")
     @ApiOperation(value = "컨설팅 상위 분류 카테고리 - 리스트 출력")
-    public ResponseEntity<?> getUpperConsultingListApi(ReqGetConsultingUpperCategoryListDto dto) {
-        return ResponseEntity.ok().body(consultingManageService.getUpperConsultingList(dto));
+    public ResponseEntity<?> getUpperConsultingListApi() {
+        return ResponseEntity.ok().body(consultingManageService.getUpperConsultingList());
     }
 
     // 컨설팅 상위 분류 항목 출력(필터)
@@ -132,10 +132,9 @@ public class ConsultingManageController {
 
     // 컨설팅 설문지 목록 출력
     @GetMapping("/survey/list")
-    @ApiOperation(value = "컨설팅 하위 분류 카테고리 - 복수 삭제")
-    public ResponseEntity<?> getSurveyConsultingListApi() {
-        consultingManageService.getSurveyList();
-        return ResponseEntity.ok().body(true);
+    @ApiOperation(value = "컨설팅 설문지 - 리스트 출력")
+    public ResponseEntity<?> getSurveyConsultingListApi(ReqGetConsultingServeyDto dto) {
+        return ResponseEntity.ok().body(consultingManageService.getSurveyList(dto));
     }
 
     // 컨설팅 설문지 선택지 타입 항목 출력

@@ -20,8 +20,10 @@ public interface UserMapper {
     int saveUserOptionalInfo(UserOptionalInfo userOptionalInfo);
     // 1-3. 회원가입 - 권한 기본값 저장(member)_2024.11.01
     int saveUserRoleMet(Map<String, Object> params);
-    // 1-4. 회원가입 - oauth 저장_2024.11.01
+    // 1-4. 회원가입(오어스) - oauth 저장_2024.11.01
     int saveOauthInfo(SocialLogin socialLogin);
+    // 1-5. 회원가입(오어스) - oauth로 회원가입 하지 않았지만 일반 회원가입으로 가입한 이메일이 oauth 계정일 때 socialLogin 수정
+    int modifySocialLoginType(int userId);
     // 2-1. 로그인
     int saveLoginHistory(LoginHistory loginHistory);
     // 2-2. 로그인
@@ -94,4 +96,6 @@ public interface UserMapper {
     int modifyNewPassword(Map<String, Object> params);
     // 11. 관리자 이용약관, 마케팅 등 정보 가져오기
     List<Setting> getAgreementInfoList();
+    // 12. userId로 oauth 정보 찾아오기
+    SocialLogin findSocialInfoByUserId(int userId);
 }

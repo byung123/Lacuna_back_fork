@@ -39,6 +39,11 @@ public class AuthControllerAdvice {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(ExistSocialLoginInfoException.class)
+    public ResponseEntity<?> ExistSocialLoginInfoException(ExistSocialLoginInfoException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> Exception(Exception e) {
         return ResponseEntity.badRequest().body(e.getMessage());

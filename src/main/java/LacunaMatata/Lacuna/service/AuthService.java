@@ -9,7 +9,6 @@ import LacunaMatata.Lacuna.exception.auth.*;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.ip.IpUtils;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
-import LacunaMatata.Lacuna.service.admin.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /************************************
  * version: 1.0.5                   *
@@ -127,45 +125,66 @@ public class AuthService {
 
     // 오어스 회원가입
     @Transactional(rollbackFor = Exception.class)
-    public void oauthSignup(ReqOauthSignupDto dto) throws Exception {
+    public void oauthSignup(ReqOauthSignupDto dto) throws Exception, ExistSocialLoginInfoException {
 
         try {
-            User user = User.builder()
-                    .username(dto.getUsername())
-                    .email(dto.getEmail())
-                    .password(passwordEncoder.encode(dto.getPassword()))
-                    .name(dto.getName())
-                    .socialLoginType(2)
-                    .build();
-            userMapper.saveUser(user);
+            User originUser = userMapper.findUserByEmail(dto.getEmail());
 
-            UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
-                    .userId(user.getUserId())
-                    .birthDate(dto.getBirthDate())
-                    .gender(dto.getGender())
-                    .phoneNumber(dto.getPhoneNumber())
-                    .address(dto.getAddress())
-                    .marketingReceiveAgreement(dto.getMarketingReceiveAgreement())
-                    .thirdPartyInfoSharingAgreement(dto.getThirdPartyInfoSharingAgreement())
-                    .useConditionAgreement(dto.getUseConditionAgreement())
-                    .build();
-            userMapper.saveUserOptionalInfo(userOptionalInfo);
+            // 오어스 계정이 없는 경우 바로 회원가입 시키기
+            if(originUser == null) {
+                User user = User.builder()
+                        .username(dto.getUsername())
+                        .email(dto.getEmail())
+                        .password(passwordEncoder.encode(dto.getPassword()))
+                        .name(dto.getName())
+                        .socialLoginType(2)
+                        .build();
+                userMapper.saveUser(user);
 
-            SocialLogin socialLogin = SocialLogin.builder()
-                    .socialUserId(user.getUserId())
-                    .socialId(dto.getSocialId())
-                    .provider(dto.getProvider())
-                    .build();
-            userMapper.saveOauthInfo(socialLogin);
+                UserOptionalInfo userOptionalInfo = UserOptionalInfo.builder()
+                        .userId(user.getUserId())
+                        .birthDate(dto.getBirthDate())
+                        .gender(dto.getGender())
+                        .phoneNumber(dto.getPhoneNumber())
+                        .address(dto.getAddress())
+                        .marketingReceiveAgreement(dto.getMarketingReceiveAgreement())
+                        .thirdPartyInfoSharingAgreement(dto.getThirdPartyInfoSharingAgreement())
+                        .useConditionAgreement(dto.getUseConditionAgreement())
+                        .build();
+                userMapper.saveUserOptionalInfo(userOptionalInfo);
 
-            List<Integer> roleIdList = new ArrayList<>();
-            roleIdList.add(1);
-            roleIdList.add(2);
-            Map<String, Object> params = Map.of(
-                    "userId", user.getUserId(),
-                    "roleIdList", roleIdList
-            );
-            userMapper.saveUserRoleMet(params);
+                SocialLogin socialLogin = SocialLogin.builder()
+                        .socialUserId(user.getUserId())
+                        .socialId(dto.getSocialId())
+                        .provider(dto.getProvider())
+                        .build();
+                userMapper.saveOauthInfo(socialLogin);
+
+                List<Integer> roleIdList = new ArrayList<>();
+                roleIdList.add(1);
+                roleIdList.add(2);
+                Map<String, Object> params = Map.of(
+                        "userId", user.getUserId(),
+                        "roleIdList", roleIdList
+                );
+                userMapper.saveUserRoleMet(params);
+            }
+
+            // 기존 회원가입을 오어스로 하지 않았는데 이메일을 오어스로 등록해놨을 경우 통합 회원가입 처리하기
+            if(originUser.getSocialLoginType() == 1) {
+                userMapper.modifySocialLoginType(originUser.getUserId());
+                SocialLogin socialLogin = SocialLogin.builder()
+                        .socialUserId(originUser.getUserId())
+                        .socialId(dto.getSocialId())
+                        .provider(dto.getProvider())
+                        .build();
+                userMapper.saveOauthInfo(socialLogin);
+            }
+
+            if(originUser.getSocialLoginType() == 2) {
+                throw new ExistSocialLoginInfoException("해당 소셜 아이디는 이미 가입된 계정입니다. 소셜 계정으로 바로 로그인 부탁드립니다.");
+            }
+
         } catch (Exception e) {
             throw new Exception("회원가입 도중 오류가 발생하였습니다. 잠시 후 이용 부탁드립니다. (서버 오류)");
         }

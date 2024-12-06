@@ -3,6 +3,7 @@ package LacunaMatata.Lacuna.service.admin;
 import LacunaMatata.Lacuna.dto.request.admin.Consulting.*;
 import LacunaMatata.Lacuna.dto.response.admin.consulting.*;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
@@ -34,13 +35,8 @@ public class ConsultingManageService {
     private ObjectMapper objectMapper;
 
     // 컨설팅 상위 분류 목록 출력
-    public RespCountAndConsultingUpperCategoryListDto getUpperConsultingList(ReqGetConsultingUpperCategoryListDto dto) {
-        int startIndex = (dto.getPage() - 1) * dto.getLimit();
-        Map<String, Object> params = Map.of(
-            "startIndex", startIndex,
-            "limit", dto.getLimit()
-        );
-        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingCategoryList(params);
+    public RespCountAndConsultingUpperCategoryListDto getUpperConsultingList() {
+        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingCategoryList();
         List<RespConsultingUpperListDto> consultingUpperCategorys = new ArrayList<>();
 
         for (ConsultingUpperCategory consultingUpperCategory : consultingUpperCategoryList) {
@@ -291,8 +287,37 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 설문지 목록 출력
-    public void getSurveyList() {
+    public RespCountAndConsultingSurveyInfoListDto getSurveyList(ReqGetConsultingServeyDto dto) {
+        int startIndex = (dto.getPage() - 1) * dto.getLimit();
+        Map<String, Object> params = Map.of(
+        "startIndex", startIndex,
+        "limit", dto.getLimit(),
+        "searchValue", dto.getSearchValue() == null ? "" : dto.getSearchValue(),
+        "option", dto.getOption(),
+        "filter", dto.getFilter()
+        );
+        List<ConsultingSurveyInfo> consultingSurveyInfos = consultingManageMapper.getConsultingSurveyList(params);
+        List<RespConsultingSurveyInfoListDto> consultingSurveyInfoList = new ArrayList<>();
 
+        for(ConsultingSurveyInfo consultingSurveyInfo : consultingSurveyInfos) {
+            RespConsultingSurveyInfoListDto respConsultingSurveyInfoListDto = RespConsultingSurveyInfoListDto.builder()
+                    .consultingId(consultingSurveyInfo.getConsultingId())
+                    .consultingCode(consultingSurveyInfo.getConsultingCode())
+                    .consultingTitle(consultingSurveyInfo.getConsultingTitle())
+                    .name(consultingSurveyInfo.getName())
+                    .createDate(consultingSurveyInfo.getCreateDate())
+                    .build();
+            consultingSurveyInfoList.add(respConsultingSurveyInfoListDto);
+        }
+
+        int totalCount = consultingSurveyInfos.isEmpty() ? 0 : consultingSurveyInfos.get(0).getTotalCount();
+
+        RespCountAndConsultingSurveyInfoListDto consultingSurvey = RespCountAndConsultingSurveyInfoListDto.builder()
+                .totalCount(totalCount)
+                .consultingSurveyInfoList(consultingSurveyInfoList)
+                .build();
+
+        return consultingSurvey;
     }
 
     // 컨설팅 설문지 선택지 타입 항목 출력

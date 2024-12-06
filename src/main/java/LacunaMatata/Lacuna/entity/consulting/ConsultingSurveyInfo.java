@@ -22,4 +22,8 @@ public class ConsultingSurveyInfo {
     private String consultingImg;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
+
+    // 서브쿼리용
+    private int totalCount;
+    private String name;
 }

@@ -26,6 +26,20 @@
         <result property="totalCount" column="totalCount" />
         <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
     </resultMap>
+    <resultMap id="consultingSurveyInfoResultMap" type="LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo">
+        <id property="consultingId" column="consulting_id" />
+        <result property="consultingSurveyUpperCategoryId" column="consulting_survey_upper_category_id" />
+        <result property="consultingLowerCategoryId" column="consulting_lower_category_id" />
+        <result property="consultingCode" column="consulting_code" />
+        <result property="consultingSurveyRegisterId" column="consulting_survey_register_id" />
+        <result property="consultingTitle" column="consulting_title" />
+        <result property="consultingSubtitle" column="consulting_sub_title" />
+        <result property="consultingImg" column="consulting_img" />
+        <result property="createDate" column="create_date" />
+        <result property="updateDate" column="update_date" />
+        <result property="totalCount" column="totalCount" />
+        <result property="name" column="name" />
+    </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
         insert into tb_consulting_upper_category
@@ -130,8 +144,6 @@
         from
             tb_consulting_upper_category cuc
             left outer join tb_consulting_lower_category clc on clc.consulting_upper_category_id = cuc.consulting_upper_category_id
-        limit
-            {startIndex}, {limit}
     </select>
     <select id="getConsultingUpperFilter" resultMap="consultingUpperCategoryResultMap">
         select
@@ -171,7 +183,7 @@
             (select u.name
             from tb_user u
             where u.user_id = clc.consulting_lower_category_register_id) as clc_name,
-            (select count(*) from tb_consulting_lower_category) as totalCount
+            count(*) over () as totalCount
         from
             tb_consulting_lower_category clc
         where
@@ -195,5 +207,45 @@
             tb_consulting_lower_category clc
         where
             clc.consulting_lower_category_id = #{lowerId}
+    </select>
+    <select id="getConsultingSurveyList" resultMap="consultingSurveyInfoResultMap">
+        select
+            csi.consulting_id,
+            csi.consulting_survey_upper_category_id,
+            csi.consulting_lower_category_id,
+            csi.consulting_code,
+            csi.consulting_survey_register_id,
+            csi.consulting_title,
+            csi.consulting_sub_title,
+            csi.consulting_img,
+            csi.create_date,
+            csi.update_date,
+            (select count(*) from tb_consulting_survey_info) as totalCount,
+            (select u.name
+            from tb_user u
+            where u.user_id = csi.consulting_survey_register_id) as name
+        from
+            tb_consulting_survey_info csi
+        where
+            1 = 1
+            <if test="filter != null and filter != '' and filter != 0">
+                and csi.consulting_survey_upper_category_id = #{filter}
+            </if>
+            <if test="searchValue != null and searchValue != ''">
+                <choose>
+                    <when test="option == 0">
+                        and (csi.consulting_survey_code concat('%', trim(ifnull(#{searchValue}, '')), '%')
+                        or csi.consulting_survey_title like concat('%', trim(ifnull(#{searchValue}, '')), '%'))
+                    </when>
+                    <when test="option == 1">
+                        and csi.consulting_survey_code like concat('%', trim(ifnull(#{searchValue}, '')), '%')
+                    </when>
+                    <when test="option == 2">
+                        and csi.consulting_survey_title like concat('%', trim(ifnull(#{searchValue}, '')), '%')
+                    </when>
+                </choose>
+            </if>
+        limit
+            #{startIndex}, #{limit}
     </select>
 </mapper>

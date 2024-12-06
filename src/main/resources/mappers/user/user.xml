@@ -173,6 +173,13 @@
             default
         )
     </insert>
+    <update id="modifySocialLoginType">
+        update tb_user
+        set
+            social_login_type = 2
+        where
+            user_id = #{userId}
+    </update>
     <update id="modifyLoginDate">
         update tb_user
         set
@@ -310,7 +317,10 @@
     </select>
     <select id="findLoginHistoryByUserId" resultMap="loginHistoryResultMap">
         select
-            *
+            login_history_id,
+            login_user_id,
+            login_time,
+            login_ip
         from
             tb_login_history
         where
@@ -596,5 +606,16 @@
             email = #{email}
             and
             created_time = (select max_created_time from tb_recursive_email_authentication)
+    </select>
+    <select id="findSocialInfoByUserId" resultMap="socialLoginResultMap">
+        select
+            social_login_id,
+            social_user_id,
+            social_id,
+            provider
+        from
+            tb_social_login
+        where
+            social_user_id = #{userId}
     </select>
 </mapper>
