@@ -154,7 +154,7 @@ public class ConsultingManageService {
         }
     }
 
-    // 컨설팅 상위 분류 항목 삭제
+    // 컨설팅 상위 분류 항목 단일 삭제
     public void deleteUpperConsulting(int upperId) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -267,7 +267,7 @@ public class ConsultingManageService {
         consultingManageMapper.modifyConsultingLowerCategory(consultingLowerCategory);
     }
 
-    // 컨설팅 하위 분류 항목 삭제
+    // 컨설팅 하위 분류 항목 단일 삭제
     public void deleteLowerConsulting(int lowerId) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
