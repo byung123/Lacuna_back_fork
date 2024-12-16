@@ -172,7 +172,7 @@ public class ConsultingManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
 
-        List<Integer> consultingUpperCategoryIdList = dto.getConsultingUpperCategoryIdList();
+        List<Integer> consultingUpperCategoryIdList = dto.getUpperCategoryIdList();
         consultingManageMapper.deleteConsultingUpperCategoryList(consultingUpperCategoryIdList);
     }
 
@@ -278,7 +278,7 @@ public class ConsultingManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-        List<Integer> consultingLowerCategoryIdList = dto.getConsultingLowerCategoryIdList();
+        List<Integer> consultingLowerCategoryIdList = dto.getLowerCategoryIdList();
         consultingManageMapper.deleteConsultingLowerCategoryList(consultingLowerCategoryIdList);
     }
 
