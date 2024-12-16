@@ -108,7 +108,7 @@ public class ConsultingManageController {
     }
 
     // 컨설팅 하위 분류 항목 단일 삭제
-    @DeleteMapping("/lower/delete/{upperId}")
+    @DeleteMapping("/lower/delete/{lowerId}")
     @ApiOperation(value = "컨설팅 하위 분류 카테고리 - 단일 삭제")
     public ResponseEntity<?> deleteLowerConsulting(@PathVariable int lowerId) throws Exception {
         consultingManageService.deleteLowerConsulting(lowerId);
