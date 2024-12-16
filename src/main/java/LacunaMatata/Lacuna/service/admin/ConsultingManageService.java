@@ -4,6 +4,7 @@ import LacunaMatata.Lacuna.dto.request.admin.Consulting.*;
 import LacunaMatata.Lacuna.dto.response.admin.consulting.*;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
@@ -317,19 +318,122 @@ public class ConsultingManageService {
         return consultingSurvey;
     }
 
-    // 컨설팅 설문지 컨설팅 설문지 등록 모달창 출력
-    public void getSurveyOption() {
+    // 컨설팅 설문지 등록 모달창 출력
+    public List<RespConsultingRegistModalDto> getSurveyregisterModal() {
+        List<ConsultingUpperCategory> consultingUpperCategoryList = consultingManageMapper.getConsultingCategoryList();
 
+        List<RespConsultingRegistModalDto> consultingUpperCategory = new ArrayList<>();
+        int consultingUpperId = 0;
+        String consultingUpperName = "";
+
+        for(ConsultingUpperCategory consultingUpper : consultingUpperCategoryList) {
+            consultingUpperId = consultingUpper.getConsultingUpperCategoryId();
+            consultingUpperName = consultingUpper.getConsultingUpperCategoryName();
+            List<RespConsultingLowerCategoryListDto> consultingLowerCategory = new ArrayList<>();
+
+            for(ConsultingLowerCategory consultingLower : consultingUpper.getConsultingLowerCategory()) {
+                RespConsultingLowerCategoryListDto consultingLowerCategoryList = RespConsultingLowerCategoryListDto.builder()
+                        .consultingLowerCategoryId(consultingLower.getConsultingLowerCategoryId())
+                        .consultingLowerCategoryName(consultingLower.getConsultingLowerCategoryName())
+                        .build();
+                consultingLowerCategory.add(consultingLowerCategoryList);
+            }
+            RespConsultingRegistModalDto consultingRegistModal = RespConsultingRegistModalDto.builder()
+                    .consultingUpperCategoryId(consultingUpperId)
+                    .consultingUpperCategoryName(consultingUpperName)
+                    .consultingLowerCategory(consultingLowerCategory)
+                    .build();
+            consultingUpperCategory.add(consultingRegistModal);
+        }
+        return consultingUpperCategory;
     }
 
     // 컨설팅 설문지 항목 등록
-    public void registSurvey() {
+    @Transactional(rollbackFor = Exception.class)
+    public void registConsultingSurvey(ReqRegistConsultingSurveyDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        int registerId = principalUser.getId();
+
+        try {
+            // 이미지 등록
+            // 1. 이미지 신규 등록할 공간 생성
+            List<MultipartFile> insertImgs = dto.getInsertImgs();
+            String insertCompletedImgPath = null;
+
+            // 2. 신규 이미지 저장
+            if (insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "consultingSurvey/");
+            }
+
+            ConsultingSurveyInfo consultingSurveyInfo = ConsultingSurveyInfo.builder()
+                    .consultingSurveyUpperCategoryId(dto.getConsultingUpperCategoryId())
+                    .consultingLowerCategoryId(dto.getConsultingLowerCategoryId())
+                    .consultingCode(dto.getConsultingCode())
+                    .consultingSurveyRegisterId(registerId)
+                    .consultingTitle(dto.getConsultingTitle())
+                    .consultingSubtitle(dto.getConsultingSubtitle())
+                    .consultingImg(insertCompletedImgPath)
+                    .build();
+            consultingManageMapper.saveConsultingSurveyInfo(consultingSurveyInfo);
+
+            // 선택지 옵션이 체크박스나 라디오일 때
+            if(dto.getConsultingOptionType().equals("checkbox") || dto.getConsultingOptionType().equals("radio")) {
+                List<ConsultingSurveyOption> consultingSurveyOptionList = new ArrayList<>();
+                for(ReqConsultingSurveyOptionDto surveyOption : dto.getConsultingOption()) {
+                    ConsultingSurveyOption consultingSurveyOption = ConsultingSurveyOption.builder()
+                            .consultingId(consultingSurveyInfo.getConsultingId())
+                            .consultingOptionType(dto.getConsultingOptionType())
+                            .optionValue(surveyOption.getOptionValue())
+                            .optionScore(surveyOption.getOptionScore())
+                            .build();
+                    consultingSurveyOptionList.add(consultingSurveyOption);
+                }
+                consultingManageMapper.saveConsultingSurveySelectOption(consultingSurveyOptionList);
+            } else {
+                ConsultingSurveyOption consultingSurveyOption = ConsultingSurveyOption.builder()
+                        .consultingId(consultingSurveyInfo.getConsultingId())
+                        .consultingOptionType(dto.getConsultingOptionType())
+                        .build();
+                consultingManageMapper.saveConsultingSurveyNonSelectOption(consultingSurveyOption);
+            }
+        } catch (Exception e) {
+            throw new Exception("컨설팅 설문지를 등록하는 도중 문제가 발생했습니다. (서버오류)");
+        }
     }
 
-    // 컨설팅 설문지 항목 출력
-    public void getSurvey() {
+    // 컨설팅 설문지 항목 수정 모달창 출력
+    public RespConsultingSurveyInfoModifyDto getConsultingSurvey(int consultingId) {
+        ConsultingSurveyInfo consultingSurveyInfo = consultingManageMapper.getConsultingSurveyInfo(consultingId);
+        List<ConsultingSurveyOption> consultingSurveyOptionList = consultingSurveyInfo.getConsultingSurveyOption();
 
+        List<RespConsultingSurveyOptionModifyDto> consultingSurveyOption = new ArrayList<>();
+
+        for(int i = 0; i < consultingSurveyOptionList.size(); i++) {
+            RespConsultingSurveyOptionModifyDto consultingOptionList = RespConsultingSurveyOptionModifyDto.builder()
+                    .optionValue(consultingSurveyOptionList.get(i).getOptionValue())
+                    .optionScore(consultingSurveyOptionList.get(i).getOptionScore())
+                    .build();
+            consultingSurveyOption.add(consultingOptionList);
+        }
+
+        RespConsultingSurveyInfoModifyDto consultingModifySurveyInfo = RespConsultingSurveyInfoModifyDto.builder()
+                .consultingId(consultingSurveyInfo.getConsultingId())
+                .consultingCode(consultingSurveyInfo.getConsultingCode())
+                .consultingUpperCategoryName(consultingSurveyInfo.getConsultingUpperCategoryName())
+                .consultingLowerCategoryName(consultingSurveyInfo.getConsultingLowerCategoryName())
+                .consultingTitle(consultingSurveyInfo.getConsultingTitle())
+                .consultingSubtitle(consultingSurveyInfo.getConsultingSubtitle())
+                .consultingImg(consultingSurveyInfo.getConsultingImg())
+                .consultingOptionType(consultingSurveyOptionList.get(0).getConsultingOptionType())
+                .consultingOption(consultingSurveyOption)
+                .build();
+
+        return consultingModifySurveyInfo;
     }
 
     // 컨설팅 설문지 항목 수정

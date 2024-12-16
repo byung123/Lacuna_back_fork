@@ -84,13 +84,6 @@ public class ConsultingManageController {
         return ResponseEntity.ok().body(consultingManageService.getLowerConsultingList(upperId));
     }
 
-    // 컨설팅 하위 분류 항목 출력 (필터)
-    @GetMapping("/lower/list/filter/{upperId}")
-    public ResponseEntity<?> getLowerConsultingListFilter(@PathVariable int upperId) {
-        consultingManageService.getLowerConsultingFilter();
-        return ResponseEntity.ok().body(true);
-    }
-
     // 컨설팅 하위 분류 항목 등록
     @PostMapping("/lower/regist")
     @ApiOperation(value = "컨설팅 하위 분류 카테고리 - 등록")
@@ -138,24 +131,22 @@ public class ConsultingManageController {
     }
 
     // 컨설팅 설문지 등록 모달창 출력
-    @GetMapping("/survey/option/filter/{consultingId}")
-    public ResponseEntity<?> getSurveyConsultingOptionFilter(@PathVariable int consultingId) {
-        consultingManageService.getSurveyOption();
-        return ResponseEntity.ok().body(true);
+    @GetMapping("/survey/regist/modal}")
+    public ResponseEntity<?> getSurveyConsultingOptionFilter() {
+        return ResponseEntity.ok().body(consultingManageService.getSurveyregisterModal());
     }
 
     // 컨설팅 설문지 항목 등록
     @PostMapping("survey/regist")
-    public ResponseEntity<?> registSurveyConsulting() {
-        consultingManageService.registSurvey();
+    public ResponseEntity<?> registSurveyConsulting(@ModelAttribute ReqRegistConsultingSurveyDto dto) throws Exception {
+        consultingManageService.registConsultingSurvey(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 설문지 항목 출력
+    // 컨설팅 설문지 항목 수정 모달창 출력
     @GetMapping("/survey/{consultingId}")
     public ResponseEntity<?> getSurveyConsulting(@PathVariable int consultingId) {
-        consultingManageService.getSurvey();
-        return ResponseEntity.ok().body(true);
+        return ResponseEntity.ok().body(consultingManageService.getConsultingSurvey(consultingId));
     }
 
     // 컨설팅 설문지 항목 수정

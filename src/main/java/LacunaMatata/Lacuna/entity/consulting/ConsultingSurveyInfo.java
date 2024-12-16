@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -28,4 +29,7 @@ public class ConsultingSurveyInfo {
     private String name;
     private String consultingUpperCategoryName;
     private String consultingLowerCategoryName;
+
+    // 조인용
+    private List<ConsultingSurveyOption> consultingSurveyOption;
 }

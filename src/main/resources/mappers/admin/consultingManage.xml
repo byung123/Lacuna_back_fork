@@ -41,6 +41,14 @@
         <result property="name" column="name" />
         <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
         <result property="consultingLowerCategoryName" column="consultingLowerCategoryName" />
+        <collection property="consultingSurveyOption" javaType="java.util.List" resultMap="consultingSurveyOptionResultMap" />
+    </resultMap>
+    <resultMap id="consultingSurveyOptionResultMap" type="LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption">
+        <id property="consultingOptionId" column="consulting_option_id" />
+        <result property="consultingId" column="consulting_id" />
+        <result property="consultingOptionType" column="consulting_option_type" />
+        <result property="optionValue" column="option_value" />
+        <result property="optionScore" column="option_score" />
     </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
@@ -64,6 +72,45 @@
             #{consultingLowerCategoryRegisterId},
             now(),
             now()
+        )
+    </insert>
+    <insert id="saveConsultingSurveyInfo" useGeneratedKeys="true" keyProperty="consultingId">
+        insert into tb_consulting_survey_info
+        values(
+            default,
+            #{consultingSurveyUpperCategoryId},
+            #{consultingLowerCategoryId},
+            #{consultingCode},
+            #{consultingSurveyRegisterId},
+            #{consultingTitle},
+            #{consultingSubtitle},
+            #{consultingImg},
+            now(),
+            now()
+        )
+    </insert>
+    <insert id="saveConsultingSurveySelectOption" useGeneratedKeys="true" keyProperty="consultingOptionId">
+        insert into tb_consulting_survey_option
+        values
+            <foreach item="surveyOptionList" collection="consultingSurveyOption" separator=",">
+                (
+                    default,
+                    #{surveyOptionList.consultingId},
+                    #{surveyOptionList.consultingOptionType},
+                    #{surveyOptionList.optionValue},
+                    #{surveyOptionList.optionScore}
+                )
+            </foreach>
+    </insert>
+    <insert id="saveConsultingSurveyNonSelectOption" useGeneratedKeys="true" keyProperty="consultingOptionId">
+        insert into tb_consulting_survey_option
+        values
+        (
+            default,
+            #{surveyOptionList.consultingId},
+            #{surveyOptionList.consultingOptionType},
+            "",
+            0
         )
     </insert>
 
@@ -255,5 +302,32 @@
             </if>
         limit
             #{startIndex}, #{limit}
+    </select>
+    <select id="getConsultingSurveyInfo" resultMap="consultingSurveyInfoResultMap">
+        select
+            csi.consulting_id,
+            csi.consulting_survey_upper_category_id,
+            (select cuc.consulting_upper_category_name
+            from tb_consulting_upper_category cuc
+            where cuc.consulting_upper_category_id = csi.consulting_survey_upper_category_id) as consultingUpperCategoryName,
+            csi.consulting_lower_category_id,
+            (select clc.consulting_lower_category_name
+            from tb_consulting_lower_category clc
+            where clc.consulting_lower_category_id = csi.consulting_lower_category_id) as consultingLowerCategoryName,
+            csi.consulting_code,
+            csi.consulting_survey_register_id,
+            csi.consulting_title,
+            csi.consulting_sub_title,
+            csi.consulting_img,
+            cso.consulting_option_id,
+            cso.consulting_id,
+            cso.consulting_option_type,
+            cso.option_value,
+            cso.option_score
+        from
+            tb_consulting_survey_info csi
+            left outer join tb_consulting_survey_option cso on cso.consulting_id = csi.consulting_id
+        where
+            csi.consulting_id = #{consultingId}
     </select>
 </mapper>

@@ -2,6 +2,7 @@ package LacunaMatata.Lacuna.repository.admin;
 
 import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
+import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -41,5 +42,13 @@ public interface ConsulttingManageMapper {
     /** 컨설팅 설문지 관련 Mapper */
     // 1. 컨설팅 설문지 리스트 출력_2024.12.06
     List<ConsultingSurveyInfo> getConsultingSurveyList(Map<String, Object> params);
-
+    // 2. 컨설팅 설문지 항목 등록 모달창 출력_2024.12.16 - 위에 컨설팅 상위 하위 관련 1번꺼 사용
+    // 3-1. 컨설팅 설문지 항목 등록_2024.12.16
+    int saveConsultingSurveyInfo(ConsultingSurveyInfo consultingSurveyInfo);
+    // 3-2. 컨설팅 설문지 옵션 항목 등록1(옵션이 radio, checkbox 일 때 - 선택항목 일때)_2024.12.06
+    int saveConsultingSurveySelectOption(List<ConsultingSurveyOption> consultingSurveyOption);
+    // 3-3. 컨설팅 설문지 옵션 항목 등록2(옵션이 img, wvm, text 등 일 때 - 경로나 직접 입력 받는 것일때)_2024.12.06
+    int saveConsultingSurveyNonSelectOption(ConsultingSurveyOption consultingSurveyOption);
+    // 4. 컨설팅 설문지 항목 수정 모달창 출력_2024.12.16
+    ConsultingSurveyInfo getConsultingSurveyInfo(int consultingId);
 }
