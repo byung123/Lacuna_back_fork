@@ -213,11 +213,6 @@ public class ConsultingManageService {
         return consultingUpperFilter;
     }
 
-    // 컨설팅 하위 분류 항목 출력 (필터)
-    public void getLowerConsultingFilter() {
-
-    }
-
     // 컨설팅 하위 분류 항목 등록
     public void registLowerConsulting(ReqRegistLowerConsultingCategoryDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
@@ -303,6 +298,8 @@ public class ConsultingManageService {
             RespConsultingSurveyInfoListDto respConsultingSurveyInfoListDto = RespConsultingSurveyInfoListDto.builder()
                     .consultingId(consultingSurveyInfo.getConsultingId())
                     .consultingCode(consultingSurveyInfo.getConsultingCode())
+                    .consultingUpperCategoryName(consultingSurveyInfo.getConsultingUpperCategoryName())
+                    .consultingLowerCategoryName(consultingSurveyInfo.getConsultingLowerCategoryName())
                     .consultingTitle(consultingSurveyInfo.getConsultingTitle())
                     .name(consultingSurveyInfo.getName())
                     .createDate(consultingSurveyInfo.getCreateDate())
@@ -320,7 +317,7 @@ public class ConsultingManageService {
         return consultingSurvey;
     }
 
-    // 컨설팅 설문지 선택지 타입 항목 출력
+    // 컨설팅 설문지 컨설팅 설문지 등록 모달창 출력
     public void getSurveyOption() {
 
     }

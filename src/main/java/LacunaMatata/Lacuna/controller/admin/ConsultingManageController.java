@@ -137,7 +137,7 @@ public class ConsultingManageController {
         return ResponseEntity.ok().body(consultingManageService.getSurveyList(dto));
     }
 
-    // 컨설팅 설문지 선택지 타입 항목 출력
+    // 컨설팅 설문지 등록 모달창 출력
     @GetMapping("/survey/option/filter/{consultingId}")
     public ResponseEntity<?> getSurveyConsultingOptionFilter(@PathVariable int consultingId) {
         consultingManageService.getSurveyOption();

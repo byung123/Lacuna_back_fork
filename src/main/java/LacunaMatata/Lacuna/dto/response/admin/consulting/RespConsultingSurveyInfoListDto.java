@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 public class RespConsultingSurveyInfoListDto {
     private int consultingId;
     private String consultingCode;
+    private String consultingUpperCategoryName;
+    private String consultingLowerCategoryName;
     private String consultingTitle;
     private String name;
     private LocalDateTime createDate;

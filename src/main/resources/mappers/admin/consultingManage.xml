@@ -39,6 +39,8 @@
         <result property="updateDate" column="update_date" />
         <result property="totalCount" column="totalCount" />
         <result property="name" column="name" />
+        <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
+        <result property="consultingLowerCategoryName" column="consultingLowerCategoryName" />
     </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
@@ -212,7 +214,13 @@
         select
             csi.consulting_id,
             csi.consulting_survey_upper_category_id,
+            (select cuc.consulting_upper_category_name
+            from tb_consulting_upper_category cuc
+            where cuc.consulting_upper_category_id = csi.consulting_survey_upper_category_id) as consultingUpperCategoryName,
             csi.consulting_lower_category_id,
+            (select clc.consulting_lower_category_name
+            from tb_consulting_lower_category clc
+            where clc.consulting_lower_category_id = csi.consulting_lower_category_id) as consultingLowerCategoryName,
             csi.consulting_code,
             csi.consulting_survey_register_id,
             csi.consulting_title,

@@ -26,4 +26,6 @@ public class ConsultingSurveyInfo {
     // 서브쿼리용
     private int totalCount;
     private String name;
+    private String consultingUpperCategoryName;
+    private String consultingLowerCategoryName;
 }
