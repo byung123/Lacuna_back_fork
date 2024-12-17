@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class ReqDeleteConsultingUpperCategoryListDto {
-    private List<Integer> consultingUpperCategoryIdList;
+    private List<Integer> upperCategoryIdList;
 }
