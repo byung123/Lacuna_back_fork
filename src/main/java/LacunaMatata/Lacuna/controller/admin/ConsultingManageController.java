@@ -132,12 +132,14 @@ public class ConsultingManageController {
 
     // 컨설팅 설문지 등록 모달창 출력
     @GetMapping("/survey/regist/modal}")
+    @ApiOperation(value = "컨설팅 설문지 - 등록 모달창 출력")
     public ResponseEntity<?> getSurveyConsultingOptionFilter() {
         return ResponseEntity.ok().body(consultingManageService.getSurveyregisterModal());
     }
 
     // 컨설팅 설문지 항목 등록
     @PostMapping("survey/regist")
+    @ApiOperation(value = "컨설팅 설문지 - 등록")
     public ResponseEntity<?> registSurveyConsulting(@ModelAttribute ReqRegistConsultingSurveyDto dto) throws Exception {
         consultingManageService.registConsultingSurvey(dto);
         return ResponseEntity.ok().body(true);
@@ -145,69 +147,73 @@ public class ConsultingManageController {
 
     // 컨설팅 설문지 항목 수정 모달창 출력
     @GetMapping("/survey/{consultingId}")
+    @ApiOperation(value = "컨설팅 설문지 - 수정 모달창 출력")
     public ResponseEntity<?> getSurveyConsulting(@PathVariable int consultingId) {
         return ResponseEntity.ok().body(consultingManageService.getConsultingSurvey(consultingId));
     }
 
     // 컨설팅 설문지 항목 수정
-    @PutMapping("/survey/modify")
-    public ResponseEntity<?> modifySurveyConsulting() {
-        consultingManageService.modifySurvey();
+    @PutMapping("/survey/modify/{consultingId}")
+    @ApiOperation(value = "컨설팅 설문지 - 수정")
+    public ResponseEntity<?> modifySurveyConsulting(@ModelAttribute ReqModifyConsultingSurveyInfoDto dto, @PathVariable int consultingId) throws Exception {
+        consultingManageService.modifySurvey(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 설문지 항목 삭제
+    // 컨설팅 설문지 항목 단일 삭제
     @DeleteMapping("/survey/delete/{consultingId}")
-    public ResponseEntity<?> deleteSurveyConsulting(@PathVariable int consultingId) {
-        consultingManageService.deleteSurvey();
+    @ApiOperation(value = "컨설팅 설문지 - 단일 삭제")
+    public ResponseEntity<?> deleteSurveyConsulting(@PathVariable int consultingId) throws Exception {
+        consultingManageService.deleteSurvey(consultingId);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 설문지 항목 복수개 삭제
     @DeleteMapping("/survey/delete")
-    public ResponseEntity<?> deleteSurveyConsultingList() {
-        consultingManageService.deleteSurveyList();
+    @ApiOperation(value = "컨설팅 설문지 - 복수 삭제")
+    public ResponseEntity<?> deleteSurveyConsultingList(@RequestBody ReqDeleteConsultingSurveyInfoListDto dto) throws Exception {
+        consultingManageService.deleteSurveyList(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 결과지 목록 출력
+    // 컨설팅 결과지(라이프스타일) 목록 출력
     @GetMapping("/survey/result/list")
-    public ResponseEntity<?> getResultConsultingListApi() {
-        consultingManageService.getResultList();
-        return ResponseEntity.ok().body(true);
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 리스트 출력")
+    public ResponseEntity<?> getLifeStyleResultListApi(ReqGetLifeStyleSurveyResultListDto dto) {
+        return ResponseEntity.ok().body(consultingManageService.getResultList(dto));
     }
 
-    // 컨설팅 결과지 항목 등록
+    // 컨설팅 결과지(라이프스타일) 항목 등록
     @PostMapping("/survey/result/regist")
-    public ResponseEntity<?> registResultConsulting() {
-        consultingManageService.registResult();
+    public ResponseEntity<?> registLifeStyleResult(@RequestBody ReqRegistLifestyleResultDto dto) throws Exception {
+        consultingManageService.registResult(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 결과지 항목 출력
+    // 컨설팅 결과지(라이프스타일) 항목 수정 모달창 출력
     @GetMapping("/survey/result/{resultId}")
-    public ResponseEntity<?> getResultConsulting(@PathVariable int resultId) {
+    public ResponseEntity<?> getLifeStyleResult(@PathVariable int resultId) {
         consultingManageService.getResult();
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 결과지 항목 수정
+    // 컨설팅 결과지(라이프스타일) 항목 수정
     @PutMapping("/survey/result/modify/{resultId}")
-    public ResponseEntity<?> modifyResultConsulting( ) {
+    public ResponseEntity<?> modifyLifeStyleResult( ) {
         consultingManageService.modifyResult();
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 결과지 항목 삭제
+    // 컨설팅 결과지(라이프스타일) 항목 단일 삭제
     @DeleteMapping("/survey/result/delete/{resultId}")
-    public ResponseEntity<?> deleteResultConsulting(@PathVariable int resultId) {
+    public ResponseEntity<?> deleteLifeStyleResult(@PathVariable int resultId) {
         consultingManageService.deleteResult();
         return ResponseEntity.ok().body(true);
     }
 
-    // 컨설팅 결과지 항목 복수개 삭제
+    // 컨설팅 결과지(라이프스타일) 항목 복수개 삭제
     @DeleteMapping("/survey/result/delete")
-    public ResponseEntity<?> deleteResultConsultingList() {
+    public ResponseEntity<?> deleteLifeStyleResultList() {
         consultingManageService.deleteResultList();
         return ResponseEntity.ok().body(true);
     }

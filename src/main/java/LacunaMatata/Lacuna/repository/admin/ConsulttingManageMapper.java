@@ -4,6 +4,8 @@ import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
+import LacunaMatata.Lacuna.entity.lifestyle.LifestyleResult;
+import LacunaMatata.Lacuna.entity.lifestyle.LifestyleResultDetail;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -51,4 +53,20 @@ public interface ConsulttingManageMapper {
     int saveConsultingSurveyNonSelectOption(ConsultingSurveyOption consultingSurveyOption);
     // 4. 컨설팅 설문지 항목 수정 모달창 출력_2024.12.16
     ConsultingSurveyInfo getConsultingSurveyInfo(int consultingId);
+    // 5-1. 컨설팅 설문지 수정1 - 컨설팅 설문 정보 수정_2024.12.17
+    int modifyConsultingSurveyInfo(ConsultingSurveyInfo consultingSurveyInfo);
+    // 5-2. 컨섩팅 설문지 수정2 - 컨설팅 설문 옵션 목록 삭제_2024.12.17
+    int deleteConsultingSurveyOption(int consultingId);
+    // 6. 컨설팅 설문지 항목 단일 삭제_2024.12.17
+    int deleteConsultingSurveyInfo(int consultingId);
+    // 7. 컨설팅 설문지 항목 복수개 삭제_2024.12.17
+    int deleteConsultingSurveyInfoList(List<Integer> consultingIdList);
+
+    /** 컨설팅 결과지(라이프스타일) 관련 Mapper */
+    // 1. 컨설팅 결과지 리스트 출력_2024.12.17
+    List<LifestyleResult> getLifeStyleResultList(Map<String, Object> params);
+    // 2-1. 컨설팅 결과지 항목 등록 - 라이프스타일 결과 항목 등록_2024.12.17
+    int saveLifestyleResult(LifestyleResult lifestyleResult);
+    // 2-2. 컨설팅 결과지 항목 등록 - 라이프스타일 결과 디테일 항목 등록_2024.12.17
+    int saveLifestyleResultDetail(Map<String, Object> params);
 }

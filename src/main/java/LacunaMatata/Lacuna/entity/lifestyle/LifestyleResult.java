@@ -20,4 +20,9 @@ public class LifestyleResult {
     private int lifestyleResultStatus;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
+
+    // 서브 쿼리용
+    private String name;
+    private String consultingUpperCategoryName;
+    private int totalCount;
 }

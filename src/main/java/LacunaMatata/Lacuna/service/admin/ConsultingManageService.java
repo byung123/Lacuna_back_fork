@@ -6,6 +6,7 @@ import LacunaMatata.Lacuna.entity.consulting.ConsultingLowerCategory;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
+import LacunaMatata.Lacuna.entity.lifestyle.LifestyleResult;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -437,28 +439,156 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 설문지 항목 수정
-    public void modifySurvey() {
+    public void modifySurvey(ReqModifyConsultingSurveyInfoDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        int registerId = principalUser.getId();
 
+        try {
+            /* 이미지 삭제 후 이미지 추가 */
+            // 단계 : 1. 신규 등록, 삭제 공간 생성, 2. 이미지 경로 DB 삭제 및 DB 파일 삭제 3. 신규 데이터 등록
+
+            // 1. 최종 수정될 imgPath 공간 생성
+            String finalImgPath = dto.getPrevImgPath();
+
+            // 2. 이미지 신규 등록할 공간 생성
+            List<MultipartFile> insertImgs = dto.getInsertImgs();
+
+            // 3. 이미지 삭제할 공간 생성
+            String deleteImgPath = dto.getDeleteImgPath();
+
+            // 4. 물리 파일 삭제
+            if(deleteImgPath != null && !deleteImgPath.isEmpty()) {
+                deleteImgUrl(deleteImgPath);
+                finalImgPath = null;
+            }
+
+            // 이미지 등록
+            // 1. 이미지 수정할 공간 생성
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                finalImgPath = registerImgUrl(insertImgs.get(0), "consultingSurvey/");
+            }
+
+            int consultingId = dto.getConsultingId();
+
+            // 컨설팅 설문 info 수정 - 공통
+            ConsultingSurveyInfo modifyConsultingSurveyInfo = ConsultingSurveyInfo.builder()
+                    .consultingId(consultingId)
+                    .consultingCode(dto.getConsultingCode())
+                    .consultingTitle(dto.getConsultingTitle())
+                    .consultingSubtitle(dto.getConsultingSubtitle())
+                    .consultingImg(finalImgPath)
+                    .build();
+            consultingManageMapper.modifyConsultingSurveyInfo(modifyConsultingSurveyInfo);
+
+            consultingManageMapper.deleteConsultingSurveyOption(consultingId);
+
+            // 선택지 옵션이 체크박스나 라디오일 때
+            if(dto.getConsultingOptionType().equals("checkbox") || dto.getConsultingOptionType().equals("radio")) {
+                List<ConsultingSurveyOption> consultingSurveyOptionList = new ArrayList<>();
+                for(ReqModifyConsultingSurveyOptionDto surveyOption : dto.getConsultingOption()) {
+                    ConsultingSurveyOption consultingSurveyOption = ConsultingSurveyOption.builder()
+                            .consultingId(consultingId)
+                            .consultingOptionType(dto.getConsultingOptionType())
+                            .optionValue(surveyOption.getOptionValue())
+                            .optionScore(surveyOption.getOptionScore())
+                            .build();
+                    consultingSurveyOptionList.add(consultingSurveyOption);
+                }
+                consultingManageMapper.saveConsultingSurveySelectOption(consultingSurveyOptionList);
+            } else {
+                ConsultingSurveyOption consultingSurveyOption = ConsultingSurveyOption.builder()
+                        .consultingId(consultingId)
+                        .consultingOptionType(dto.getConsultingOptionType())
+                        .build();
+                consultingManageMapper.saveConsultingSurveyNonSelectOption(consultingSurveyOption);
+            }
+        } catch (Exception e) {
+            throw new Exception("컨설팅 설문지 수정 중 오류가 발생했습니다. 잠시후 다시 시도해주세요. (서버 오류)");
+        }
     }
 
     // 컨설팅 설문지 항목 삭제
-    public void deleteSurvey() {
+    public void deleteSurvey(int consultingId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        consultingManageMapper.deleteConsultingSurveyInfo(consultingId);
     }
 
     // 컨설팅 설문지 항목 복수개 삭제
-    public void deleteSurveyList() {
+    public void deleteSurveyList(ReqDeleteConsultingSurveyInfoListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        List<Integer> consultingIdList = dto.getConsultingIdList();
+        consultingManageMapper.deleteConsultingSurveyInfoList(consultingIdList);
     }
 
     // 컨설팅 결과지 목록 출력
-    public void getResultList() {
+    public RespCountAndLifestyleResultListDto getResultList(ReqGetLifeStyleSurveyResultListDto dto) {
+        int startIndex = (dto.getPage() - 1) * dto.getLimit();
+        Map<String, Object> params = Map.of(
+            "startIndex", startIndex,
+            "limit", dto.getLimit(),
+            "searchValue", dto.getSearchValue() == null ? "" : dto.getSearchValue()
+        );
 
+        List<LifestyleResult> lifeStyleResults = consultingManageMapper.getLifeStyleResultList(params);
+        List<RespLifestyleResultDto> lifestyleResultList = new ArrayList<>();
+        for(LifestyleResult lifestyleResult : lifeStyleResults) {
+            RespLifestyleResultDto lifestyle = RespLifestyleResultDto.builder()
+                    .lifestyleResultId(lifestyleResult.getLifestyleResultId())
+                    .consultingUpperCategoryName(lifestyleResult.getConsultingUpperCategoryName())
+                    .lifestyleResultUnitTitle(lifestyleResult.getLifestyleResultUnitTitle())
+                    .lifestyleResultStatus(lifestyleResult.getLifestyleResultStatus())
+                    .name(lifestyleResult.getName())
+                    .createDate(lifestyleResult.getCreateDate())
+                    .build();
+            lifestyleResultList.add(lifestyle);
+        }
+
+        RespCountAndLifestyleResultListDto lifestyleResultListDto = RespCountAndLifestyleResultListDto.builder()
+                .totalCount(lifeStyleResults.get(0).getTotalCount())
+                .lifestyleResult(lifestyleResultList)
+                .build();
+        return lifestyleResultListDto;
     }
 
     // 컨설팅 결과지 항목 등록
-    public void registResult() {
+    public void registResult(ReqRegistLifestyleResultDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        int registerId = principalUser.getId();
+
+        LifestyleResult lifestyleResult = LifestyleResult.builder()
+                .lifestyleResultConsultingUpperCategoryId(dto.getLifestyleResultConsultingUpperCategoryId())
+                .lifestyleResultConsultingLowerCategoryId(dto.getLifestyleResultConsultingLowerCategoryId())
+                .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
+                .lifestyleResultRegisterId(registerId)
+                .lifestyleResultStatus(dto.getLifestyleResultStatus())
+                .build();
+        consultingManageMapper.saveLifestyleResult(lifestyleResult);
+
+        List<ReqRegistLifestyleResultDetailDto> lifestyleResultDetail = dto.getLifestyleDetail();
+        Map<String, Object> params = Map.of(
+            "resultId", lifestyleResult.getLifestyleResultId(),
+            "lifestyleResultDetailList", lifestyleResultDetail
+        );
+        consultingManageMapper.saveLifestyleResultDetail(params);
     }
 
     // 컨설팅 결과지 항목 출력

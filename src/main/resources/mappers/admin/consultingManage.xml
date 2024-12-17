@@ -50,6 +50,19 @@
         <result property="optionValue" column="option_value" />
         <result property="optionScore" column="option_score" />
     </resultMap>
+    <resultMap id="lifeStyleResultResultMap" type="LacunaMatata.Lacuna.entity.lifestyle.LifestyleResult">
+        <id property="lifestyleResultId" column="lifestyle_result_id" />
+        <result property="lifestyleResultConsultingUpperCategoryId" column="lifestyle_result_consulting_upper_category_id" />
+        <result property="lifestyleResultConsultingLowerCategoryId" column="lifestyle_result_consulting_lower_category_id" />
+        <result property="lifestyleResultUnitTitle" column="lifestyle_result_unit_title" />
+        <result property="lifestyleResultRegisterId" column="lifestyle_result_register_id" />
+        <result property="lifestyleResultStatus" column="lifestyle_result_status" />
+        <result property="createDate" column="create_date" />
+        <result property="updateDate" column="update_date" />
+        <result property="name" column="name" />
+        <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
+        <result property="totalCount" column="totalCount" />
+    </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
         insert into tb_consulting_upper_category
@@ -113,6 +126,34 @@
             0
         )
     </insert>
+    <insert id="saveLifestyleResult" useGeneratedKeys="true" keyProperty="lifestyleResultId">
+        insert into tb_lifestyle_result
+        values(
+            default,
+            #{lifestyleResultConsultingUpperCategoryId},
+            #{lifestyleResultConsultingLowerCategoryId},
+            #{lifestyleResultUnitTitle},
+            #{lifestyleResultRegisterId},
+            #{lifestyleResultStatus},
+            now(),
+            now()
+        )
+    </insert>
+    <insert id="saveLifestyleResultDetail">
+        insert into tb_lifestyle_result_detail
+        values
+            <foreach item="lifestyleDetail" collection="lifestyleResultDetailList" separator=",">
+                (
+                    default,
+                    #{resultId},
+                    #{lifestyleDetail.lifestyleResultType}
+                    #{lifestyleDetail.lifestyleResultTitle}
+                    #{lifestyleDetail.lifestyleResultScoreMin}
+                    #{lifestyleDetail.lifestyleResultScoreMax}
+                    #{lifestyleDetail.lifestyleResultContent}
+                )
+            </foreach>
+    </insert>
 
     <update id="modifyConsultingUpperCategory">
         update tb_consulting_upper_category
@@ -131,6 +172,17 @@
             update_date = now()
         where
             consulting_lower_category_id = #{consultingLowerCategoryId}
+    </update>
+    <update id="modifyConsultingSurveyInfo">
+        update tb_consulting_survey_info
+        set
+            consulting_code = #{consultingCode},
+            consulting_title = #{consultingTitle},
+            consulting_subtitle = #{consultingSubtitle},
+            consulting_img = #{consultingImg},
+            update_date = now()
+        where
+            consulting_id = #{consultingId}
     </update>
 
     <delete id="deleteConsultingUpperCategory">
@@ -165,6 +217,30 @@
             consulting_lower_category_id in
             <foreach item="lowerId" collection="lowerCategoryIdList" open="(" separator="," close=")">
                 #{lowerId}
+            </foreach>
+    </delete>
+    <delete id="deleteConsultingSurveyOption">
+        delete
+        from
+            tb_consulting_survey_option
+        where
+            consulting_id = #{consultingId}
+    </delete>
+    <delete id="deleteConsultingSurveyInfo">
+        delete
+        from
+            tb_consulting_survey_info
+        where
+            consulting_id = #{consultingId}
+    </delete>
+    <delete id="deleteConsultingSurveyInfoList">
+        delete
+        from
+            tb_consulting_survey_option
+        where
+            consulting_id in
+            <foreach item="consultingId" collection="consultingIdList" open="(" separator="," close=")">
+                #{consultingId}
             </foreach>
     </delete>
 
@@ -329,5 +405,32 @@
             left outer join tb_consulting_survey_option cso on cso.consulting_id = csi.consulting_id
         where
             csi.consulting_id = #{consultingId}
+    </select>
+    <select id="getLifeStyleResultList" resultMap="lifeStyleResultResultMap">
+        select
+            lr.lifestyle_result_id,
+            lr.lifestyle_result_consulting_upper_category_id,
+            (select cuc.consulting_upper_category_name
+            from tb_consulting_upper_category cuc
+            where cuc.consulting_upper_category_id = lr.lifestyle_result_consulting_upper_category_id) as consultingUpperCategoryName,
+            lr.lifestyle_result_consulting_lower_category_id,
+            lr.lifestyle_result_unit_title,
+            lifestyle_result_register_id,
+            (select u.name
+            from tb_user u
+            where u.user_id = lr.lifestyle_result_register_id) as name,
+            lr.lifestyle_result_status,
+            create_date,
+            update_date,
+            (select count(*) from tb_lifestyle_result) as totalCount
+        from
+            tb_lifestyle_result
+        where
+            1 = 1
+            <if test="searchValue != null and searchValue != ''">
+                and lr.lifestyle_result_unit_title like concat('%', trim(ifnull(#{searchValue}, '')), '%')
+            </if>
+        limit
+            #{startIndex}, #{limit}
     </select>
 </mapper>
