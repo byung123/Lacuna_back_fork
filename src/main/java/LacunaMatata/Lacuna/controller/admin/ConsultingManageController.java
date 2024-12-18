@@ -185,6 +185,7 @@ public class ConsultingManageController {
 
     // 컨설팅 결과지(라이프스타일) 항목 등록
     @PostMapping("/survey/result/regist")
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 등록")
     public ResponseEntity<?> registLifeStyleResult(@RequestBody ReqRegistLifestyleResultDto dto) throws Exception {
         consultingManageService.registResult(dto);
         return ResponseEntity.ok().body(true);
@@ -192,29 +193,32 @@ public class ConsultingManageController {
 
     // 컨설팅 결과지(라이프스타일) 항목 수정 모달창 출력
     @GetMapping("/survey/result/{resultId}")
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 수정 모달창 출력")
     public ResponseEntity<?> getLifeStyleResult(@PathVariable int resultId) {
-        consultingManageService.getResult();
-        return ResponseEntity.ok().body(true);
+        return ResponseEntity.ok().body(consultingManageService.getResult(resultId));
     }
 
     // 컨설팅 결과지(라이프스타일) 항목 수정
     @PutMapping("/survey/result/modify/{resultId}")
-    public ResponseEntity<?> modifyLifeStyleResult( ) {
-        consultingManageService.modifyResult();
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 수정")
+    public ResponseEntity<?> modifyLifeStyleResult(@RequestBody ReqModifyLifestyleResultDto dto, @PathVariable int resultId) throws Exception {
+        consultingManageService.modifyResult(dto);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 결과지(라이프스타일) 항목 단일 삭제
     @DeleteMapping("/survey/result/delete/{resultId}")
-    public ResponseEntity<?> deleteLifeStyleResult(@PathVariable int resultId) {
-        consultingManageService.deleteResult();
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 단일 삭제")
+    public ResponseEntity<?> deleteLifeStyleResult(@PathVariable int resultId) throws Exception {
+        consultingManageService.deleteResult(resultId);
         return ResponseEntity.ok().body(true);
     }
 
     // 컨설팅 결과지(라이프스타일) 항목 복수개 삭제
     @DeleteMapping("/survey/result/delete")
-    public ResponseEntity<?> deleteLifeStyleResultList() {
-        consultingManageService.deleteResultList();
+    @ApiOperation(value = "컨설팅 결과지(라이프스타일) - 복수 삭제")
+    public ResponseEntity<?> deleteLifeStyleResultList(@RequestBody ReqDeleteLifestyleResultListDto dto) throws Exception {
+        consultingManageService.deleteResultList(dto);
         return ResponseEntity.ok().body(true);
     }
 }

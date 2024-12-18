@@ -61,7 +61,18 @@
         <result property="updateDate" column="update_date" />
         <result property="name" column="name" />
         <result property="consultingUpperCategoryName" column="consultingUpperCategoryName" />
+        <result property="consultingLowerCategoryName" column="consultingLowerCategoryName" />
         <result property="totalCount" column="totalCount" />
+        <collection property="lifestyleResultDetail" javaType="java.util.List" resultMap="lifestyleResultDetailResultMap" />
+    </resultMap>
+    <resultMap id="lifestyleResultDetailResultMap" type="LacunaMatata.Lacuna.entity.lifestyle.LifestyleResultDetail">
+        <id property="lifestyleResultDetailId" column="lifestyle_result_detail_id" />
+        <result property="lifestyleResultId" column="lifestyle_result_id" />
+        <result property="lifestyleResultType" column="lifestyle_result_type" />
+        <result property="lifestyleResultTitle" column="lifestyle_result_title" />
+        <result property="lifestyleResultScoreMin" column="lifestyle_result_score_min" />
+        <result property="lifestyleResultScoreMax" column="lifestyle_result_score_max" />
+        <result property="lifestyleResultContent" column="lifestyle_result_content" />
     </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
@@ -184,6 +195,48 @@
         where
             consulting_id = #{consultingId}
     </update>
+    <update id="modifyLifestyleResult">
+        update tb_lifestyle_result
+        set
+            lifestyle_result_unit_title = #{lifestyleResultUnitTitle},
+            lifestyle_result_status = #{lifestyleResultStatus},
+            update_date = now()
+        where
+            lifestyle_result_id = #{lifestyleResultId}
+    </update>
+    <update id="modifyLifestyleResultDetail">
+        update tb_lifestyle_result_detail
+        set
+            lifestyle_result_title = case
+                <foreach item="lifestyleDetail" collection="lifestyleDetailList" separator=" ">
+                    when lifestyle_result_detail_id = #{lifestyleDetail.lifestyleResultDetailId}
+                    then #{lifestyleDetail.lifestyleResultTitle}
+                </foreach>
+            end,
+            lifestyle_result_content = case
+                <foreach item="lifestyleDetail" collection="lifestyleDetailList" separator=" ">
+                    when lifestyle_result_detail_id = #{lifestyleDetail.lifestyleResultDetailId}
+                    then #{lifestyleDetail.lifestyleResultContent}
+                </foreach>
+            end,
+            lifestyle_result_score_min = case
+                <foreach item="lifestyleDetail" collection="lifestyleDetailList" separator=" ">
+                    when lifestyle_result_detail_id = #{lifestyleDetail.lifestyleResultDetailId}
+                    then #{lifestyleDetail.lifestyleResultScoreMin}
+                </foreach>
+            end,
+            lifestyle_result_score_max = case
+                <foreach item="lifestyleDetail" collection="lifestyleDetailList" separator=" ">
+                    when lifestyle_result_detail_id = #{lifestyleDetail.lifestyleResultDetailId}
+                    then #{lifestyleDetail.lifestyleResultScoreMax}
+                </foreach>
+            end
+        where
+            lifestyle_result_detail_id in
+                <foreach item="lifestyleDetail" collection="lifestyleDetailList" open="(" separator="," close=")">
+                    #{lifestyleDetail.lifestyleResultDetailId}
+                </foreach>
+    </update>
 
     <delete id="deleteConsultingUpperCategory">
         delete
@@ -241,6 +294,23 @@
             consulting_id in
             <foreach item="consultingId" collection="consultingIdList" open="(" separator="," close=")">
                 #{consultingId}
+            </foreach>
+    </delete>
+    <delete id="deleteLifestyleResult">
+        delete
+        from
+            tb_lifestyle_result
+        where
+            lifestyle_result_id = #{resultId}
+    </delete>
+    <delete id="deleteLifestyleResultList">
+        delete
+        from
+            tb_lifestyle_result
+        where
+            lifestyle_result_id in
+            <foreach item="resultId" collection="resultIdList" open="(" separator="," close=")">
+                #{resultId}
             </foreach>
     </delete>
 
@@ -414,17 +484,20 @@
             from tb_consulting_upper_category cuc
             where cuc.consulting_upper_category_id = lr.lifestyle_result_consulting_upper_category_id) as consultingUpperCategoryName,
             lr.lifestyle_result_consulting_lower_category_id,
+            (select clc.consulting_lower_category_name
+            from tb_consulting_lower_category clc
+            where clc.consulting_lower_category_id = lr.lifestyle_result_consulting_lower_category_id) as consultingLowerCategoryName,
             lr.lifestyle_result_unit_title,
             lifestyle_result_register_id,
             (select u.name
             from tb_user u
             where u.user_id = lr.lifestyle_result_register_id) as name,
             lr.lifestyle_result_status,
-            create_date,
-            update_date,
+            lr.create_date,
+            lr.update_date,
             (select count(*) from tb_lifestyle_result) as totalCount
         from
-            tb_lifestyle_result
+            tb_lifestyle_result lr
         where
             1 = 1
             <if test="searchValue != null and searchValue != ''">
@@ -432,5 +505,37 @@
             </if>
         limit
             #{startIndex}, #{limit}
+    </select>
+    <select id="getLifestyleResult" resultMap="lifeStyleResultResultMap">
+        select
+            lr.lifestyle_result_id,
+            lr.lifestyle_result_consulting_upper_category_id,
+            (select cuc.consulting_upper_category_name
+            from tb_consulting_upper_category cuc
+            where cuc.consulting_upper_category_id = lr.lifestyle_result_consulting_upper_category_id) as consultingUpperCategoryName,
+            lr.lifestyle_result_consulting_lower_category_id,
+            (select clc.consulting_lower_category_name
+            from tb_consulting_lower_category clc
+            where clc.consulting_lower_category_id = lr.lifestyle_result_consulting_lower_category_id) as consultingLowerCategoryName,
+            lr.lifestyle_result_unit_title,
+            lifestyle_result_register_id,
+            (select u.name
+            from tb_user u
+            where u.user_id = lr.lifestyle_result_register_id) as name,
+            lr.lifestyle_result_status,
+            lr.create_date,
+            lr.update_date,
+            lrd.lifestyle_result_detail_id,
+            lrd.lifestyle_result_id,
+            lrd.lifestyle_result_type,
+            lrd.lifestyle_result_title,
+            lrd.lifestyle_result_score_min,
+            lrd.lifestyle_result_score_max,
+            lrd.lifestyle_result_content
+        from
+            tb_lifestyle_result lr
+            left outer join tb_lifestyle_result_detail lrd on lrd.lifestyle_result_id = lr.lifestyle_result_id
+        where
+            lr.lifestyle_result_id = #{resultId}
     </select>
 </mapper>

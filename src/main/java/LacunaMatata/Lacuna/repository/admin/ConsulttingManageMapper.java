@@ -69,4 +69,14 @@ public interface ConsulttingManageMapper {
     int saveLifestyleResult(LifestyleResult lifestyleResult);
     // 2-2. 컨설팅 결과지 항목 등록 - 라이프스타일 결과 디테일 항목 등록_2024.12.17
     int saveLifestyleResultDetail(Map<String, Object> params);
+    // 3. 컨설팅 결과지 항목 수정 모달창 출력_2024.12.18
+    LifestyleResult getLifestyleResult(int resultId);
+    // 4-1. 컨설팅 결과지 항목 수정_2024.12.18
+    int modifyLifestyleResult(LifestyleResult lifestyleResult);
+    // 4-2. 컨설팅 결과지 디테일 항목 수정_2024.12.18
+    int modifyLifestyleResultDetail(List<LifestyleResultDetail> lifestyleDetailList);
+    // 5. 컨설팅 결돠지 항목 단일 삭제_2024.12.18
+    int deleteLifestyleResult(int resultId);
+    // 6. 컨설팅 결과지 항목 복수개 삭제_2024.12.18
+    int deleteLifestyleResultList(List<Integer> resultIdList);
 }

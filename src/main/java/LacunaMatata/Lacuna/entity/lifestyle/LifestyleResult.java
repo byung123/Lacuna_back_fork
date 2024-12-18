@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +25,9 @@ public class LifestyleResult {
     // 서브 쿼리용
     private String name;
     private String consultingUpperCategoryName;
+    private String consultingLowerCategoryName;
     private int totalCount;
+
+    // 조인용
+    private List<LifestyleResultDetail> lifestyleResultDetail;
 }

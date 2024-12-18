@@ -7,6 +7,7 @@ import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyInfo;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingSurveyOption;
 import LacunaMatata.Lacuna.entity.consulting.ConsultingUpperCategory;
 import LacunaMatata.Lacuna.entity.lifestyle.LifestyleResult;
+import LacunaMatata.Lacuna.entity.lifestyle.LifestyleResultDetail;
 import LacunaMatata.Lacuna.repository.admin.ConsulttingManageMapper;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -591,25 +592,90 @@ public class ConsultingManageService {
         consultingManageMapper.saveLifestyleResultDetail(params);
     }
 
-    // 컨설팅 결과지 항목 출력
-    public void getResult() {
+    // 컨설팅 결과지 항목 수정 모달창 출력
+    public RespLifestyleResultModifyModalDto getResult(int resultId) {
+        LifestyleResult lifestyleResult = consultingManageMapper.getLifestyleResult(resultId);
+        List<RespLifestyleResultDetailModifyModalDto> lifestyleResultDetail = new ArrayList<>();
 
+        for(LifestyleResultDetail lifestyleDetail : lifestyleResult.getLifestyleResultDetail()) {
+            RespLifestyleResultDetailModifyModalDto lifestyleDetailModify = RespLifestyleResultDetailModifyModalDto.builder()
+                    .lifestyleResultDetailId(lifestyleDetail.getLifestyleResultDetailId())
+                    .lifestyleResultType(lifestyleDetail.getLifestyleResultType())
+                    .lifestyleResultTitle(lifestyleDetail.getLifestyleResultTitle())
+                    .lifestyleResultContent(lifestyleDetail.getLifestyleResultContent())
+                    .lifestyleResultScoreMin(lifestyleDetail.getLifestyleResultScoreMin())
+                    .lifestyleResultScoreMax(lifestyleDetail.getLifestyleResultScoreMax())
+                    .build();
+            lifestyleResultDetail.add(lifestyleDetailModify);
+        }
+
+        RespLifestyleResultModifyModalDto lifestyleResultModify = RespLifestyleResultModifyModalDto.builder()
+                .lifestyleResultId(lifestyleResult.getLifestyleResultId())
+                .lifestyleResultUnitTitle(lifestyleResult.getLifestyleResultUnitTitle())
+                .lifestyleResultConsultingUpperCategoryName(lifestyleResult.getConsultingUpperCategoryName())
+                .lifestyleResultConsultingLowerCategoryName(lifestyleResult.getConsultingLowerCategoryName())
+                .lifestyleResultStatus(lifestyleResult.getLifestyleResultStatus())
+                .lifestyleDetail(lifestyleResultDetail)
+                .build();
+        return lifestyleResultModify;
     }
 
     // 컨설팅 결과지 항목 수정
-    public void modifyResult() {
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyResult(ReqModifyLifestyleResultDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        LifestyleResult lifestyleResult = LifestyleResult.builder()
+                .lifestyleResultId(dto.getLifestyleResultId())
+                .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
+                .lifestyleResultStatus(dto.getLifestyleResultStatus())
+                .build();
+        consultingManageMapper.modifyLifestyleResult(lifestyleResult);
+
+        List<ReqModifyLifestyleResultDetailDto> lifestyleDetail = dto.getLifestyleDetail();
+        List<LifestyleResultDetail> modifyLifestyleDetail = new ArrayList<>();
+        for(ReqModifyLifestyleResultDetailDto lifestyleDetailDto : lifestyleDetail) {
+            LifestyleResultDetail lifestyleResultDetail = LifestyleResultDetail.builder()
+                    .lifestyleResultDetailId(lifestyleDetailDto.getLifestyleResultDetailId())
+                    .lifestyleResultTitle(lifestyleDetailDto.getLifestyleResultTitle())
+                    .lifestyleResultContent(lifestyleDetailDto.getLifestyleResultContent())
+                    .lifestyleResultScoreMin(lifestyleDetailDto.getLifestyleResultScoreMin())
+                    .lifestyleResultScoreMax(lifestyleDetailDto.getLifestyleResultScoreMax())
+                    .build();
+            modifyLifestyleDetail.add(lifestyleResultDetail);
+        }
+        consultingManageMapper.modifyLifestyleResultDetail(modifyLifestyleDetail);
     }
 
     // 컨설팅 결과지 항목 삭제
-    public void deleteResult() {
+    public void deleteResult(int resultId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        consultingManageMapper.deleteLifestyleResult(resultId);
     }
 
     // 컨설팅 결과지 항목 복수개 삭제
-    public void deleteResultList() {
+    public void deleteResultList(ReqDeleteLifestyleResultListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+        List<Integer> resultIdList = dto.getLifestyleResultIdList();
+        consultingManageMapper.deleteLifestyleResultList(resultIdList);
     }
+
+
 
     public String registerImgUrl(MultipartFile img, String dirName ) throws IOException {
         String originalFilenameAndExtension = img.getOriginalFilename();
