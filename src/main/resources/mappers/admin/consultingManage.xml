@@ -538,4 +538,21 @@
         where
             lr.lifestyle_result_id = #{resultId}
     </select>
+    <select id="getConsultingMemberList" resultMap="UserResultMap">
+        select
+            u.name,
+            u.last_login_date,
+            uoi.birth_date,
+            uoi.gender,
+            cmi.consulting_member_id,
+            pi.last_purchased_item,
+            cmdi.personal_consulting_status,
+            cs.consulting_status_name,
+            csm.create_date
+        from
+            tb_user u
+            left outer join tb_consulting_status_met csm on csm.consulting_status_member_id = u.user_id
+        order by
+            csm.create_date desc
+    </select>
 </mapper>

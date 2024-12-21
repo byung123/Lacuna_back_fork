@@ -221,4 +221,11 @@ public class ConsultingManageController {
         consultingManageService.deleteResultList(dto);
         return ResponseEntity.ok().body(true);
     }
+
+    // 컨설팅 회원 관리
+    @GetMapping
+    @ApiOperation(value = "컨설팅 회원 관리 - 리스트 출력")
+    public ResponseEntity<?> getConsultingMemberList(ReqGetConsultingMemberListDto dto) {
+        return ResponseEntity.ok().body(consultingManageService.getConsultingMemberList(dto));
+    }
 }

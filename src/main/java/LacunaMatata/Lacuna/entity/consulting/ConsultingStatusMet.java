@@ -15,6 +15,6 @@ import java.time.LocalDateTime;
 public class ConsultingStatusMet {
     private int consultingStatusMetId;
     private int consultingStatusMemberId; // consultingMemberInfo 테이블 consultingMemberId 외래키
-    private int consultingMemberPurchaseId; // consultingStatus 테이블 consultingStatusId 외래키
+    private int consultingStatusId; // consultingStatus 테이블 consultingStatusId 외래키
     private LocalDateTime createDate;
 }

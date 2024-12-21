@@ -675,7 +675,19 @@ public class ConsultingManageService {
         consultingManageMapper.deleteLifestyleResultList(resultIdList);
     }
 
+    // 컨설팅 회원 리스트 출력
+    public String getConsultingMemberList(ReqGetConsultingMemberListDto dto) {
+        int startIndex = (dto.getPage() - 1) * dto.getLimit();
+        Map<String, Object> params = Map.of(
+                "startIndex", startIndex,
+                "limit", dto.getLimit(),
+                "searchValue", dto.getSearchValue() == null ? "" : dto.getSearchValue(),
+                "option", dto.getOption(),
+                "filter", dto.getFilter()
+        );
+        List<String> ConsultingMemberList = consultingManageMapper.getConsultingMemberList(params);
 
+    }
 
     public String registerImgUrl(MultipartFile img, String dirName ) throws IOException {
         String originalFilenameAndExtension = img.getOriginalFilename();

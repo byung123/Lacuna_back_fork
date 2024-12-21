@@ -79,4 +79,8 @@ public interface ConsulttingManageMapper {
     int deleteLifestyleResult(int resultId);
     // 6. 컨설팅 결과지 항목 복수개 삭제_2024.12.18
     int deleteLifestyleResultList(List<Integer> resultIdList);
+
+    /** 컨설팅 회원 관련 Mapper */
+    // 1. 컨설팅 회원 목록 출력
+    List<String> getConsultingMemberList(Map<String, Object> params);
 }

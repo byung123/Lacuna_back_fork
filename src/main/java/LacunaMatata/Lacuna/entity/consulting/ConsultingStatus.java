@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class ConsultingStatus {
     private int consultingStatusId;
-    private String name;
+    private String consultingStatusName;
     private String description;
 }
