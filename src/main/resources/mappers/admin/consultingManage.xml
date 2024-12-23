@@ -74,6 +74,9 @@
         <result property="lifestyleResultScoreMax" column="lifestyle_result_score_max" />
         <result property="lifestyleResultContent" column="lifestyle_result_content" />
     </resultMap>
+    <resultMap id="UserResultMap" type="LacunaMatata.Lacuna.entity.user.User">
+        <id property="userId" column="user_id" />
+    </resultMap>
 
     <insert id="saveConsultingUpperCategory" useGeneratedKeys="true" keyProperty="consultingUpperCategoryId">
         insert into tb_consulting_upper_category
