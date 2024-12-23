@@ -131,7 +131,7 @@ public class ConsultingManageController {
     }
 
     // 컨설팅 설문지 등록 모달창 출력
-    @GetMapping("/survey/regist/modal}")
+    @GetMapping("/survey/regist/modal")
     @ApiOperation(value = "컨설팅 설문지 - 등록 모달창 출력")
     public ResponseEntity<?> getSurveyConsultingOptionFilter() {
         return ResponseEntity.ok().body(consultingManageService.getSurveyregisterModal());
