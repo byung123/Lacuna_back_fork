@@ -438,7 +438,7 @@
             <if test="searchValue != null and searchValue != ''">
                 <choose>
                     <when test="option == 0">
-                        and (csi.consulting_code concat('%', trim(ifnull(#{searchValue}, '')), '%')
+                        and (csi.consulting_code like concat('%', trim(ifnull(#{searchValue}, '')), '%')
                         or csi.consulting_title like concat('%', trim(ifnull(#{searchValue}, '')), '%'))
                     </when>
                     <when test="option == 1">
