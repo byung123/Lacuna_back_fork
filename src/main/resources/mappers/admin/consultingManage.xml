@@ -74,7 +74,7 @@
         <result property="lifestyleResultScoreMax" column="lifestyle_result_score_max" />
         <result property="lifestyleResultContent" column="lifestyle_result_content" />
     </resultMap>
-    <resultMap id="UserResultMap" type="LacunaMatata.Lacuna.entity.user.User">
+    <resultMap id="ConsultingMemberInfoResultMap" type="LacunaMatata.Lacuna.entity.consulting.ConsultingMemberInfo">
         <id property="userId" column="user_id" />
     </resultMap>
 
@@ -541,20 +541,29 @@
         where
             lr.lifestyle_result_id = #{resultId}
     </select>
-    <select id="getConsultingMemberList" resultMap="UserResultMap">
+    <select id="getConsultingMemberList" resultMap="ConsultingMemberInfoResultMap">
         select
-            u.name,
-            u.last_login_date,
-            uoi.birth_date,
-            uoi.gender,
             cmi.consulting_member_id,
-            pi.last_purchased_item,
-            cmdi.personal_consulting_status,
-            cs.consulting_status_name,
-            csm.create_date
+            cmi.consulting_member_user_id,
+            (select u.name
+            from tb_user u
+            where u.user_id = cmi.consulting_member_user_id) as name,
+            (select u.last_login_date
+            from tb_user u
+            where u.user_id = cmi.consulting_member_user_id) as lastLoginDate,
+            (select uoi.birth_date
+            from tb_user_optional_info uoi
+            where uoi.user_id = cmi.consulting_member_user_id) as birthDate,
+            (select uoi.gender
+            from tb_user_optional_info uoi
+            where uoi.user_id = cmi.consulting_member_user_id) as gender,
+            (select p.product_name
+            from tb_product p
+            where p.product_id = oi.order_product_id) as productName
         from
-            tb_user u
-            left outer join tb_consulting_status_met csm on csm.consulting_status_member_id = u.user_id
+            tb_consulting_member_info cmi
+            left outer join tb_order o on o.order_user_id = cmi.consulting_member_user_id
+            left outer join tb_order_item oi on oi.order_id = o.order_id
         order by
             csm.create_date desc
     </select>

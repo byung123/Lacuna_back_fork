@@ -43,11 +43,6 @@ public class User {
     private int maxRoleId;
     private Date birthDate;
     private int gender;
-    private int consultingMemberId;
-    private String lastPurchasedItem;
-    private int personalConsultingStatus;
-    private String consultingStatusName; // 컨설팅 상태
-    private LocalDateTime consultingCreateDate; // 컨설팅 시작 날짜
 
     // 조인 목적
     private Set<UserRoleMet> userRoleMets;
