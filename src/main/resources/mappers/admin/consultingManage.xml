@@ -420,7 +420,7 @@
             csi.consulting_code,
             csi.consulting_survey_register_id,
             csi.consulting_title,
-            csi.consulting_sub_title,
+            csi.consulting_subtitle,
             csi.consulting_img,
             csi.create_date,
             csi.update_date,
