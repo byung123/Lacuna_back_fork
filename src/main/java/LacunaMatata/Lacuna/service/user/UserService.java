@@ -6,6 +6,12 @@ import LacunaMatata.Lacuna.entity.mbti.MbtiResult;
 import LacunaMatata.Lacuna.entity.order.Order;
 import LacunaMatata.Lacuna.entity.user.PasswordHistory;
 import LacunaMatata.Lacuna.entity.user.User;
+import LacunaMatata.Lacuna.exception.auth.NotMatchPasswordCheckException;
+import LacunaMatata.Lacuna.exception.auth.NotMatchPasswordException;
+import LacunaMatata.Lacuna.exception.auth.TokenValidExpiredException;
+import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyMbtiResultException;
+import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyOrderInfoException;
+import LacunaMatata.Lacuna.exception.user.userException.NotFoundUserException;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
@@ -61,23 +67,34 @@ public class UserService {
                 = (PrincipalUser) authentication.getPrincipal();
         int userId = principalUser.getId();
 
-        User user = userMapper.findUserByUserId(userId);
-        RespMyProfileHeaderDto myProfileHeader = RespMyProfileHeaderDto.builder()
-                .name(user.getName())
-                .username(user.getUsername())
-                .roleName(user.getRoleName())
-                .profileImg(user.getUserOptionalInfo().getProfileImg())
-                .build();
-        return myProfileHeader;
+        try {
+            User user = userMapper.findUserByUserId(userId);
+            RespMyProfileHeaderDto myProfileHeader = RespMyProfileHeaderDto.builder()
+                    .name(user.getName())
+                    .username(user.getUsername())
+                    .roleName(user.getRoleName())
+                    .profileImg(user.getUserOptionalInfo().getProfileImg())
+                    .build();
+            return myProfileHeader;
+        } catch (Exception e) {
+            throw new NotFoundUserException("로그인한 유저의 정보를 찾을 수 없습니다. 서버에 문의 해주세요.");
+        }
     }
 
     // 프로필 페이지 출력 정보
     public RespMyProfileDto getMyProfile() {
         PrincipalUser principalUser
                 = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int userId = principalUser.getId();
 
         User user = userMapper.findUserByUserId(userId);
+        if(user == null) {
+            throw new NotFoundUserException("로그인한 유저의 정보를 찾을 수 없습니다. 서버에 문의 해주세요.");
+        }
+
         String kakaoUrl = userMapper.getKakaoAddress();
 
         RespMyProfileDto respMyProfileDto = RespMyProfileDto.builder()
@@ -92,9 +109,13 @@ public class UserService {
     }
 
     // 프로필 페이지 - 프로필 이미지 변경
-    public void changeMyProfileImg(ReqModifyProfileImgDto dto) throws IOException {
+    public void changeMyProfileImg(ReqModifyProfileImgDto dto) throws Exception {
         PrincipalUser principalUser
                 = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
         String profileImg = dto.getProfileImg();
 
@@ -102,51 +123,75 @@ public class UserService {
                 "userId", userId,
                 "profileImg", profileImg
         );
-        userMapper.modifyMyProfileImg(params);
+        try {
+            userMapper.modifyMyProfileImg(params);
+        } catch (Exception e) {
+            throw new Exception("이미지 변경 중 오류가 발생했습니다. 다시 시도해주세요");
+        }
     }
 
     // 프로필 페이지 - 비밀번호 변경1
     @Transactional(rollbackFor = Exception.class)
-    public Boolean passwordCheck(ReqPasswordCheckDto dto) throws Exception {
+    public Boolean passwordCheck(ReqPasswordCheckDto dto) {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
         User user = userMapper.findUserByUserId(userId);
 
         if(!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-            throw new Exception("현재 사용하고 있는 비밀번호가 일치하지 않습니다.");
+            throw new NotMatchPasswordException("현재 사용하고 있는 비밀번호가 일치하지 않습니다.");
         }
-
         return true;
     }
 
     // 프로필 페이지 - 비밀번호 변경2
     public void passwordChange(ReqPasswordChangeDto dto) throws Exception {
         if(!dto.getPassword().equals(dto.getCheckPassword())) {
-            throw new Exception("비밀번호가 일치하지 않습니다.");
+            throw new NotMatchPasswordCheckException("비밀번호가 일치하지 않습니다.");
         }
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
 
         String modifyPassword = passwordEncoder.encode(dto.getPassword());
-        userMapper.modifyPassword(userId, modifyPassword);
 
-        PasswordHistory passwordHistory = PasswordHistory.builder()
-                .historyUserId(userId)
-                .password(modifyPassword)
-                .build();
-        userMapper.savePasswordHistory(passwordHistory);
+        try {
+            userMapper.modifyPassword(userId, modifyPassword);
+
+            PasswordHistory passwordHistory = PasswordHistory.builder()
+                    .historyUserId(userId)
+                    .password(modifyPassword)
+                    .build();
+            userMapper.savePasswordHistory(passwordHistory);
+        } catch (Exception e) {
+            throw new Exception("비밀번호 수정 도중 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+        }
     }
 
     // 프로필 페이지 - 내 연락처 바꾸기
-    public void changePhoneNumber(ReqChangePhoneNumberDto dto) {
+    public void changePhoneNumber(ReqChangePhoneNumberDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
         Map<String, Object> params = Map.of(
                 "userId", userId,
                 "phoneNumber", dto.getPhoneNumber()
         );
 
-        userMapper.modifyPhoneNumber(params);
+        try {
+            userMapper.modifyPhoneNumber(params);
+        } catch (Exception e) {
+            throw new Exception("정보 수정 도중 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+        }
     }
 
     // 프로필 페이지 - 내 이메일 주소 변경하기 (메일 인증)
@@ -156,6 +201,7 @@ public class UserService {
         if(userMapper.findUserByEmail(dto.getEmail()) == null) {
             throw new Exception("이미 존재하는 이메일입니다.");
         }
+
         String emailToken = jwtProvider.generateEmailValidToken(toEmail);
         String bearerToken = "Bearer ".concat(emailToken);
 
@@ -177,8 +223,12 @@ public class UserService {
     }
 
     // 프로필 페이지 - 내 이메일 주소 변경하기 (수정)
-    public void changeMyEmail2(ReqMyEmailTokenDto dto) {
+    public void changeMyEmail2(ReqMyEmailTokenDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
         String emailToken = dto.getEmailToken();
 
@@ -188,46 +238,76 @@ public class UserService {
                 "userId", userId,
                 "email", email
         );
-        userMapper.modifyMyEmail(params);
+
+        try {
+            userMapper.modifyMyEmail(params);
+        } catch (Exception e) {
+            throw new Exception("이메일 정보 수정 도중 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+        }
     }
 
     // 프로필 페이지 - 마케팅 동의 설정 바꾸기
-    public void changeMarketingAgreement(ReqChangeMarketingDto dto) {
+    public void changeMarketingAgreement(ReqChangeMarketingDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
         int marketingReceiveAgreement = dto.getMarketingReceiveAgreement();
         Map<String, Object> params = Map.of(
                 "userId", userId,
                 "marketingReceiveAgreement", marketingReceiveAgreement
         );
-        userMapper.changeMarketingAgreement(params);
+
+        try {
+            userMapper.changeMarketingAgreement(params);
+        } catch (Exception e) {
+            throw new Exception("마케팅 동의 설정 도중 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+        }
     }
 
     // 프로필페이지 - 회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
     public void withdrawUser(ReqWithdrawUserDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int userId = principalUser.getId();
+
         User user = userMapper.findUserByUserId(userId);
 
         String password = dto.getPassword();
         if(!user.getPassword().equals(password)) {
-            throw new Exception("현재 비밀번호 불일치");
+            throw new Exception("현재 비밀번호와 일치하지 않습니다. 다시 입력해주세요.");
         }
 
-        userMapper.deleteUser(userId);
-        userMapper.deleteUserOptionalInfo(userId);
-        userMapper.deleteUserRoleMet(userId);
-        userMapper.deleteOauthInfo(userId);
-        // 나머지 정보는 그대로 보존
+        try {
+            userMapper.deleteUser(userId);
+            userMapper.deleteUserOptionalInfo(userId);
+            userMapper.deleteUserRoleMet(userId);
+            userMapper.deleteOauthInfo(userId);
+            // 나머지 정보는 그대로 보존
+        } catch (Exception e) {
+            throw new Exception("회원 탈퇴 과정중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
     }
 
     // 마이페이지 - mbti 결과
     public RespMyMbtiResultDto getMbtiResult() {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
 
         MbtiResult mbtiResult = userMapper.getMyMbtiResult(userId);
+        if(mbtiResult == null) {
+            throw new NotFoundMyMbtiResultException("피부 mbti 결과 정보가 존재하지 않습니다. 피부 mbti 설문 후 확인해주세요.");
+        }
+
         RespMyMbtiResultDto myMbtiResultDto = RespMyMbtiResultDto.builder()
                 .mbtiResultId(mbtiResult.getMbtiResultId())
                 .mbtiResultCategoryName(mbtiResult.getMbtiResultCategoryName())
@@ -242,6 +322,10 @@ public class UserService {
     // 마이페이지 - 주문 정보 출력
     public List<RespMyOrderInfoDto> getMyOrderInfo(ReqGetMyOrderInfoDto dto) {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principalUser == null) {
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int userId = principalUser.getId();
 
         Map<String, Object> params = Map.of(
@@ -251,6 +335,10 @@ public class UserService {
                 "searchValue", dto.getSearchValue() == null ? "" : dto.getSearchValue()
         );
         List<Order> myOrderList = userMapper.getMyOrderInfo(params);
+        if(myOrderList == null) {
+            throw new NotFoundMyOrderInfoException("회원님의 주문하신 상품이 존재하지 않습니다.");
+        }
+
         List<RespMyOrderInfoDto> orderList = new ArrayList<>();
 
         for(Order order : myOrderList) {
@@ -272,16 +360,25 @@ public class UserService {
     public int cancelSystemPay(int orderId) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(principalUser == null) {
-            throw new Exception("권한이 없습니다");
+            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
 
-        userMapper.cancelSystemPay(orderId);
-        int paymentId = userMapper.findPaymentByOrderId(orderId);
-        return paymentId;
+        try {
+            userMapper.cancelSystemPay(orderId);
+            int paymentId = userMapper.findPaymentByOrderId(orderId);
+            return paymentId;
+        } catch (Exception e) {
+            throw new Exception("결제 취소 도중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
+        }
     }
 
     // 프로필 페이지 - 주문 취소 (계좌이체)
-    public void cancelMyOrder(int orderId) {
-        userMapper.cancelMyOrder(orderId);
+    public void cancelMyOrder(int orderId) throws Exception {
+        try {
+            userMapper.cancelMyOrder(orderId);
+        } catch (Exception e) {
+            throw new Exception("주문 취소 도중 오류가 발생했습니다. 관리자에게 문의 바랍니다.");
+        }
+
     }
 }

@@ -29,6 +29,11 @@ public class AuthControllerAdvice {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(NotMatchPasswordException.class)
+    public ResponseEntity<?> NotMatchPasswordException(NotMatchPasswordException e) {
+        return ResponseEntity.status(401).body(e.getMessage());
+    }
+
     @ExceptionHandler(NotMatchPasswordCheckException.class)
     public ResponseEntity<?> NotMatchPasswordCheckException(NotMatchPasswordCheckException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
@@ -44,8 +49,18 @@ public class AuthControllerAdvice {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(FailSendEmailException.class)
+    public ResponseEntity<?> FailSendEmailException(FailSendEmailException e) {
+        return ResponseEntity.status(500).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TokenValidExpiredException.class)
+    public ResponseEntity<?> TokenValidExpiredException(TokenValidExpiredException e) {
+        return ResponseEntity.status(401).body(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> Exception(Exception e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(500).body(e.getMessage());
     }
 }

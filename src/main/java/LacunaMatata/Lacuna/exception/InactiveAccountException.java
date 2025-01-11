@@ -8,7 +8,7 @@ public class InactiveAccountException extends RuntimeException {
     @Getter
     private Map<String, String> errorMessages;
 
-    public InactiveAccountException() {
+    public InactiveAccountException(String s) {
         super("휴먼계정 예외처리");
         errorMessages = Map.of(
                 "title", "휴먼계정 안내",

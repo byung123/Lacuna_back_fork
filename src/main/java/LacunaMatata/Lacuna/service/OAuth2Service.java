@@ -27,7 +27,6 @@ public class OAuth2Service implements OAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         Map<String, Object> oAuth2Attributes = new HashMap<>();
         oAuth2Attributes.put("provider", userRequest.getClientRegistration().getClientName());
-        System.out.println(attributes);
 
         switch (userRequest.getClientRegistration().getClientName()) {
             case "Google":

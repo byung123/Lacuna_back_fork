@@ -62,7 +62,7 @@ public class AuthController {
     // 회원가입 시 이용약관, 마케팅 정보 불러오기
     @GetMapping("/signup/agreementinfo")
     @ApiOperation(value = "getAgreementInfoApi")
-    ResponseEntity<?> getAgreementInfo() {
+    ResponseEntity<?> getAgreementInfo() throws Exception {
         return ResponseEntity.ok().body(authService.getAgreementInfo());
     }
 
@@ -109,7 +109,7 @@ public class AuthController {
     // 사용자 비밀번호 찾기 - 인증코드 전송
     @PostMapping("/find/password/authentication")
     @ApiOperation(value = "찾기 - 사용자 PW 찾기 - 인증코드 전송")
-    public ResponseEntity<?> findPassword(@RequestBody ReqFindPasswordDto dto) throws UsernameNotFoundException {
+    public ResponseEntity<?> findPassword(@RequestBody ReqFindPasswordDto dto) throws Exception {
         authService.findPassword(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -124,7 +124,7 @@ public class AuthController {
     // 사용자 비밀번호 찾기 - 새 비밀번호 입력
     @PutMapping("/find/password/newpassword")
     @ApiOperation(value = "찾기 - 사용자 PW 찾기 - 인증코드 인증")
-    public ResponseEntity<?> changeNewPassword(@RequestBody ReqChangeNewPasswordDto dto) {
+    public ResponseEntity<?> changeNewPassword(@RequestBody ReqChangeNewPasswordDto dto) throws Exception {
         authService.changeNewPassword(dto);
         return ResponseEntity.ok().body(true);
     }

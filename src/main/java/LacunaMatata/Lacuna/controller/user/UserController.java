@@ -41,7 +41,7 @@ public class UserController {
     // 프로필 페이지 - 프로필 사진 바꾸기
     @ApiOperation(value = "MyPage - 프로필 사진 수정")
     @PutMapping("/user/change/profile/img")
-    public ResponseEntity<?> changeMyProfileImg(@RequestBody ReqModifyProfileImgDto dto) throws IOException {
+    public ResponseEntity<?> changeMyProfileImg(@RequestBody ReqModifyProfileImgDto dto) throws Exception {
         userService.changeMyProfileImg(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -64,7 +64,7 @@ public class UserController {
     // 프로필 페이지 - 내 연락처 바꾸기
     @PutMapping("/user/change/phone")
     @ApiOperation(value = "MyPage - 연락처 변경")
-    public ResponseEntity<?> changeMyPhoneNumber(@RequestBody ReqChangePhoneNumberDto dto) {
+    public ResponseEntity<?> changeMyPhoneNumber(@RequestBody ReqChangePhoneNumberDto dto) throws Exception {
         userService.changePhoneNumber(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -80,7 +80,7 @@ public class UserController {
     // 프로필페이지 - 내 이메일 주소 바꾸기2
     @PutMapping("/user/change/email")
     @ApiOperation(value = "MyPage - 이메일 주소 변경 (수정)")
-    public ResponseEntity<?> changeMyEmail2(@RequestBody ReqMyEmailTokenDto dto) {
+    public ResponseEntity<?> changeMyEmail2(@RequestBody ReqMyEmailTokenDto dto) throws Exception {
         userService.changeMyEmail2(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -88,7 +88,7 @@ public class UserController {
     // 프로필페이지 - 마케팅 수신 동의 바꾸기
     @PutMapping("/user/change/marketing")
     @ApiOperation(value = "MyPage - 마케팅 수신 동의 수정")
-    public ResponseEntity<?> changeMarketingAgreement(@RequestBody ReqChangeMarketingDto dto) {
+    public ResponseEntity<?> changeMarketingAgreement(@RequestBody ReqChangeMarketingDto dto) throws Exception {
         userService.changeMarketingAgreement(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -127,7 +127,7 @@ public class UserController {
     // 프로필 페이지 - 주문 취소 - 계좌이체
     @PutMapping("/user/cancel/order/{orderId}")
     @ApiOperation(value = "MyPage - 주문 취소")
-    public ResponseEntity<?> cancelMyOrder(@PathVariable int orderId) {
+    public ResponseEntity<?> cancelMyOrder(@PathVariable int orderId) throws Exception {
         userService.cancelMyOrder(orderId);
         return ResponseEntity.ok().body(true);
     }

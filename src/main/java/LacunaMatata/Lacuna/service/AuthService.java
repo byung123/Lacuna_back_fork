@@ -5,6 +5,7 @@ import LacunaMatata.Lacuna.dto.response.user.auth.RespAgreementInfoDto;
 import LacunaMatata.Lacuna.dto.response.user.auth.RespFindUsernameDto;
 import LacunaMatata.Lacuna.entity.Setting;
 import LacunaMatata.Lacuna.entity.user.*;
+import LacunaMatata.Lacuna.exception.InactiveAccountException;
 import LacunaMatata.Lacuna.exception.auth.*;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.ip.IpUtils;
@@ -101,31 +102,35 @@ public class AuthService {
 
         // 계정 비활성화인 경우
         if(user.getLastLoginDate().isBefore(LocalDateTime.now().minusYears(1))) {
-            throw new Exception("휴면계정입니다. 이메일 인증으로 휴면 계정을 복구하시고 이용해주세요.");
+            throw new InactiveAccountException("휴면계정입니다. 이메일 인증으로 휴면 계정을 복구하시고 이용해주세요.");
         }
 
-        // 토큰 가져오기
-        int roleId = user.getUserRoleMets().stream().map(ur -> ur.getRoleId())
-                .max(Comparator.naturalOrder()).orElse(2);
-        String roleName = userMapper.findUserRoleByRoleId(roleId).getRoleName();
+        try {
+            // 토큰 가져오기
+            int roleId = user.getUserRoleMets().stream().map(ur -> ur.getRoleId())
+                    .max(Comparator.naturalOrder()).orElse(2);
+            String roleName = userMapper.findUserRoleByRoleId(roleId).getRoleName();
 
-        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), roleName);
+            String accessToken = jwtProvider.generateAccessToken(user.getUserId(), roleName);
 
-        // ip 가져오기
-        String loginIp = IpUtils.getClientIp(request);
-        // 로그인 정보에 로그인 시간과 ip 저장하기
-        LoginHistory loginHistory = LoginHistory.builder()
-                .loginUserId(user.getUserId())
-                .loginIp(loginIp)
-                .build();
-        userMapper.saveLoginHistory(loginHistory);
+            // ip 가져오기
+            String loginIp = IpUtils.getClientIp(request);
+            // 로그인 정보에 로그인 시간과 ip 저장하기
+            LoginHistory loginHistory = LoginHistory.builder()
+                    .loginUserId(user.getUserId())
+                    .loginIp(loginIp)
+                    .build();
+            userMapper.saveLoginHistory(loginHistory);
 
-        return accessToken;
+            return accessToken;
+        } catch (Exception e) {
+            throw new Exception("로그인 도중 오류가 발생하였습니다. 잠시 후 다시 시도해주세요.");
+        }
     }
 
     // 오어스 회원가입
     @Transactional(rollbackFor = Exception.class)
-    public void oauthSignup(ReqOauthSignupDto dto) throws Exception, ExistSocialLoginInfoException {
+    public void oauthSignup(ReqOauthSignupDto dto) throws Exception {
 
         try {
             User originUser = userMapper.findUserByEmail(dto.getEmail());
@@ -191,19 +196,24 @@ public class AuthService {
     }
 
     // 회원가입할 때 이용약관, 마케팅 정보 불러오기
-    public List<RespAgreementInfoDto> getAgreementInfo() {
-        List<Setting> agreementInfo = userMapper.getAgreementInfoList();
-        List<RespAgreementInfoDto> agreementInfoList = new ArrayList<>();
+    public List<RespAgreementInfoDto> getAgreementInfo() throws Exception {
+        try {
+            List<Setting> agreementInfo = userMapper.getAgreementInfoList();
+            List<RespAgreementInfoDto> agreementInfoList = new ArrayList<>();
 
-        for(int i = 0; i < agreementInfo.size(); i++) {
-            RespAgreementInfoDto agreement = RespAgreementInfoDto.builder()
-                    .settingId(agreementInfo.get(i).getSettingId())
-                    .dataType(agreementInfo.get(i).getDataType())
-                    .value(agreementInfo.get(i).getValue())
-                    .build();
-            agreementInfoList.add(agreement);
+            for(int i = 0; i < agreementInfo.size(); i++) {
+                RespAgreementInfoDto agreement = RespAgreementInfoDto.builder()
+                        .settingId(agreementInfo.get(i).getSettingId())
+                        .dataType(agreementInfo.get(i).getDataType())
+                        .value(agreementInfo.get(i).getValue())
+                        .build();
+                agreementInfoList.add(agreement);
+            }
+            return agreementInfoList;
+        } catch (Exception e) {
+            throw new Exception("약관 정보를 불러오는 도중 서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
-        return agreementInfoList;
+
     }
 
     // username 중복 되는 지 검사 -> AuthAspect로 들어감
@@ -239,19 +249,23 @@ public class AuthService {
     public Boolean sendAuthEmail(ReqAuthEmailDto dto) throws Exception {
         String toEmail = dto.getToEmail();
         if(isDuplicateEmail(toEmail)) {
-            throw new Exception("이메일이 이미 있어요~");
+            throw new Exception("해당 이메일 주소는 이미 등록된 이메일입니다. 다른 이메일 주소를 입력해주세요.");
         }
 
         StringBuilder code = generateAuthenticationCode(6);
         String authenticationCode = code.toString();
         LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
 
-        Map<String, Object> params = Map.of(
-            "email", toEmail,
-            "verificationCode", authenticationCode,
-            "expirationTime", expirationTime
-        );
-        userMapper.saveEmailAuthentication(params);
+        try {
+            Map<String, Object> params = Map.of(
+                    "email", toEmail,
+                    "verificationCode", authenticationCode,
+                    "expirationTime", expirationTime
+            );
+            userMapper.saveEmailAuthentication(params);
+        } catch (Exception e) {
+            throw new Exception("이메일 인증 과정 중 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+        }
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;width:400px'>");
@@ -276,7 +290,12 @@ public class AuthService {
         if(!emailAuthentication.getVerificationCode().equals(dto.getAuthenticationCode())) {
             throw new Exception("인증코드가 일치하지 않습니다. 다시 확인해주세요.");
         }
-        userMapper.modifyEmailVerified(email);
+
+        try {
+            userMapper.modifyEmailVerified(email);
+        } catch (Exception e) {
+            throw new Exception("이메일 인증 과정 중 오류가 발생했습니다. 다시 시도 부탁드립니다.");
+        }
 
         return true;
     }
@@ -308,6 +327,7 @@ public class AuthService {
         }
 
         List<Setting> adminEmailAndPhone = userMapper.getAdminEmailAndPhone();
+
         String adminEmail = adminEmailAndPhone.stream().filter(setting ->
                 setting.getDataType().equals("Email")).map(Setting::getValue).findFirst().orElse(null);
         String adminPhone = adminEmailAndPhone.stream().filter(setting ->
@@ -327,7 +347,7 @@ public class AuthService {
 
     // 비밀번호 찾기1 - 인증코드 보내기
     @Transactional(rollbackFor = Exception.class)
-    public void findPassword(ReqFindPasswordDto dto) throws UsernameNotFoundException {
+    public void findPassword(ReqFindPasswordDto dto) throws Exception {
         String toEmail = dto.getEmail();
         Map<String, Object> params = Map.of(
             "username", dto.getUsername(),
@@ -344,7 +364,13 @@ public class AuthService {
             "userId", user.getUserId(),
             "authenticationCode", authenticationCode
         );
-        userMapper.updateAuthenticationCode(params2);
+
+        try {
+            userMapper.updateAuthenticationCode(params2);
+        } catch (Exception e) {
+            throw new Exception("인증 과정 중 오류가 발생했습니다. 다시 시도 부탁드립니다.");
+        }
+
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<div style='display:flex;justify-content:center;align-items:center;flex-direction:column;"
@@ -374,7 +400,7 @@ public class AuthService {
 
     // 비밀번호 찾기3 - 새 비밀번호로 저장하기
     @Transactional(rollbackFor = Exception.class)
-    public void changeNewPassword(ReqChangeNewPasswordDto dto) {
+    public void changeNewPassword(ReqChangeNewPasswordDto dto) throws Exception {
         String username = dto.getUsername();
         String password = dto.getPassword();
         User user = userMapper.findUserByUsername(username);
@@ -392,12 +418,16 @@ public class AuthService {
             "username", username,
             "password", encoingPassword
         );
-        userMapper.modifyNewPassword(params);
-        PasswordHistory passwordHistory = PasswordHistory.builder()
-                .historyUserId(user.getUserId())
-                .password(encoingPassword)
-                .build();
-        userMapper.savePasswordHistory(passwordHistory);
+        try {
+            userMapper.modifyNewPassword(params);
+            PasswordHistory passwordHistory = PasswordHistory.builder()
+                    .historyUserId(user.getUserId())
+                    .password(encoingPassword)
+                    .build();
+            userMapper.savePasswordHistory(passwordHistory);
+        } catch (Exception e) {
+            throw new Exception("비밀번호를 바꾸는 도중 서버에서 오류가 발생했습니다. 잠시 후에 이용해주시길 바랍니다.");
+        }
     }
 
     private String maskingInfo(String info) {
@@ -449,12 +479,11 @@ public class AuthService {
             helper.setSubject(subject);
             message.setText(htmlContent, "utf-8", "html");
 
+            javaMailSender.send(message);
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            throw new FailSendEmailException("이메일 전송 도중 오류가 발생했습니다. 다시 시도해주세요.");
         }
 
-        javaMailSender.send(message);
         return true;
     }
 
