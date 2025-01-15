@@ -176,7 +176,7 @@ public class AuthService {
             }
 
             // 기존 회원가입을 오어스로 하지 않았는데 이메일을 오어스로 등록해놨을 경우 통합 회원가입 처리하기
-            if(originUser.getSocialLoginType() == 1) {
+            if(originUser != null && originUser.getSocialLoginType() == 1) {
                 userMapper.modifySocialLoginType(originUser.getUserId());
                 SocialLogin socialLogin = SocialLogin.builder()
                         .socialUserId(originUser.getUserId())
@@ -186,11 +186,12 @@ public class AuthService {
                 userMapper.saveOauthInfo(socialLogin);
             }
 
-            if(originUser.getSocialLoginType() == 2) {
+            if(originUser != null && originUser.getSocialLoginType() == 2) {
                 throw new ExistSocialLoginInfoException("해당 소셜 아이디는 이미 가입된 계정입니다. 소셜 계정으로 바로 로그인 부탁드립니다.");
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("회원가입 도중 오류가 발생하였습니다. 잠시 후 이용 부탁드립니다. (서버 오류)");
         }
     }
