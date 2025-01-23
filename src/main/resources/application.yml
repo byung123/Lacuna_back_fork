@@ -3,10 +3,80 @@ spring:
     active: local
     group:
       local: local, common, secret
+      blue: blue, common, secret
+      green: green, common, secret
 
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+server:
+  env: blue
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirect-uri: http://localhost:8080/login/oauth2/code/naver
+          kakao:
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+server:
+  port: 8080
+  serverAddress: localhost
+
+serverName: local_server
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: blue
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirect-uri: http://43.203.59.220/login/oauth2/code/naver
+          kakao:
+            redirect-uri: http://43.203.59.220/login/oauth2/code/kakao
+
+# 탄력적 ip주소 하기
+server:
+  port: 8080
+  serverAddress: 43.203.59.220
+
+serverName: blue_server
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: green
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirect-uri: http://43.203.59.220/login/oauth2/code/naver
+          kakao:
+            redirect-uri: http://43.203.59.220/login/oauth2/code/kakao
+
+server:
+  port: 8080
+  serverAddress: 43.203.59.220
+
+serverName: green_server
+
 ---
 spring:
   config:
