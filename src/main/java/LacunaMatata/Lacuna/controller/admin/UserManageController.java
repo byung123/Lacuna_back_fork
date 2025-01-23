@@ -78,7 +78,7 @@ public class UserManageController {
     // 사용자 삭제
     @DeleteMapping("/delete/{userId}")
     @ApiOperation(value = "사용자 - 사용자 단일 삭제") // test 완료
-    public ResponseEntity<?> deleteUser(@PathVariable int userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable int userId) throws Exception {
         userManageService.deleteUser(userId);
         return ResponseEntity.ok().body(true);
     }
@@ -86,7 +86,7 @@ public class UserManageController {
     // 사용자 복수개 삭제
     @DeleteMapping("/delete")
     @ApiOperation(value = "사용자 - 사용자 복수 삭제") // test 완료
-    public ResponseEntity<?> deleteUserList(@RequestBody ReqDeleteUserListDto dto) {
+    public ResponseEntity<?> deleteUserList(@RequestBody ReqDeleteUserListDto dto) throws Exception {
         userManageService.deleteUserList(dto);
         return ResponseEntity.ok().body(true);
     }

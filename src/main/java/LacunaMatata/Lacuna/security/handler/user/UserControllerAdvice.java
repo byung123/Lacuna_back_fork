@@ -1,8 +1,8 @@
 package LacunaMatata.Lacuna.security.handler.user;
 
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyMbtiResultException;
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyOrderInfoException;
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundUserException;
+import LacunaMatata.Lacuna.exception.user.NotFoundMyMbtiResultException;
+import LacunaMatata.Lacuna.exception.user.NotFoundMyOrderInfoException;
+import LacunaMatata.Lacuna.exception.user.NotFoundUserException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

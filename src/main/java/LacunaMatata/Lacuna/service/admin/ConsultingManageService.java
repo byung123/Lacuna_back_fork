@@ -227,12 +227,16 @@ public class ConsultingManageService {
         }
         int registerId = principalUser.getId();
 
-        ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
-                .consultingUpperCategoryId(dto.getConsultingUpperCategoryId())
-                .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
-                .consultingLowerCategoryRegisterId(registerId)
-                .build();
-        consultingManageMapper.saveConsultingLowerCategory(consultingLowerCategory);
+        try {
+            ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
+                    .consultingUpperCategoryId(dto.getConsultingUpperCategoryId())
+                    .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
+                    .consultingLowerCategoryRegisterId(registerId)
+                    .build();
+            consultingManageMapper.saveConsultingLowerCategory(consultingLowerCategory);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 하위 분류 등록 중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 하위 분류 수정 모달창 항목 출력
@@ -255,11 +259,15 @@ public class ConsultingManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
 
-        ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
-                .consultingLowerCategoryId(dto.getConsultingLowerCategoryId())
-                .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
-                .build();
-        consultingManageMapper.modifyConsultingLowerCategory(consultingLowerCategory);
+        try {
+            ConsultingLowerCategory consultingLowerCategory = ConsultingLowerCategory.builder()
+                    .consultingLowerCategoryId(dto.getConsultingLowerCategoryId())
+                    .consultingLowerCategoryName(dto.getConsultingLowerCategoryName())
+                    .build();
+            consultingManageMapper.modifyConsultingLowerCategory(consultingLowerCategory);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 하위 분류 수정중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 하위 분류 항목 단일 삭제
@@ -270,7 +278,12 @@ public class ConsultingManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-        consultingManageMapper.deleteConsultingLowerCategory(lowerId);
+
+        try {
+            consultingManageMapper.deleteConsultingLowerCategory(lowerId);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 하위 분류 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 하위 분류 항목 복수개 삭제
@@ -282,7 +295,12 @@ public class ConsultingManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
         List<Integer> consultingLowerCategoryIdList = dto.getLowerCategoryIdList();
-        consultingManageMapper.deleteConsultingLowerCategoryList(consultingLowerCategoryIdList);
+
+        try {
+            consultingManageMapper.deleteConsultingLowerCategoryList(consultingLowerCategoryIdList);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 하위 분류 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 설문지 목록 출력
@@ -440,6 +458,7 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 설문지 항목 수정
+    @Transactional(rollbackFor = Exception.class)
     public void modifySurvey(ReqModifyConsultingSurveyInfoDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -520,7 +539,12 @@ public class ConsultingManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-        consultingManageMapper.deleteConsultingSurveyInfo(consultingId);
+
+        try {
+            consultingManageMapper.deleteConsultingSurveyInfo(consultingId);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 설문지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 설문지 항목 복수개 삭제
@@ -531,8 +555,14 @@ public class ConsultingManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
+
         List<Integer> consultingIdList = dto.getConsultingIdList();
-        consultingManageMapper.deleteConsultingSurveyInfoList(consultingIdList);
+
+        try {
+            consultingManageMapper.deleteConsultingSurveyInfoList(consultingIdList);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 설문지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 결과지 목록 출력
@@ -566,6 +596,7 @@ public class ConsultingManageService {
     }
 
     // 컨설팅 결과지 항목 등록
+    @Transactional(rollbackFor = Exception.class)
     public void registResult(ReqRegistLifestyleResultDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -575,21 +606,25 @@ public class ConsultingManageService {
         }
         int registerId = principalUser.getId();
 
-        LifestyleResult lifestyleResult = LifestyleResult.builder()
-                .lifestyleResultConsultingUpperCategoryId(dto.getLifestyleResultConsultingUpperCategoryId())
-                .lifestyleResultConsultingLowerCategoryId(dto.getLifestyleResultConsultingLowerCategoryId())
-                .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
-                .lifestyleResultRegisterId(registerId)
-                .lifestyleResultStatus(dto.getLifestyleResultStatus())
-                .build();
-        consultingManageMapper.saveLifestyleResult(lifestyleResult);
+        try {
+            LifestyleResult lifestyleResult = LifestyleResult.builder()
+                    .lifestyleResultConsultingUpperCategoryId(dto.getLifestyleResultConsultingUpperCategoryId())
+                    .lifestyleResultConsultingLowerCategoryId(dto.getLifestyleResultConsultingLowerCategoryId())
+                    .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
+                    .lifestyleResultRegisterId(registerId)
+                    .lifestyleResultStatus(dto.getLifestyleResultStatus())
+                    .build();
+            consultingManageMapper.saveLifestyleResult(lifestyleResult);
 
-        List<ReqRegistLifestyleResultDetailDto> lifestyleResultDetail = dto.getLifestyleDetail();
-        Map<String, Object> params = Map.of(
-            "resultId", lifestyleResult.getLifestyleResultId(),
-            "lifestyleResultDetailList", lifestyleResultDetail
-        );
-        consultingManageMapper.saveLifestyleResultDetail(params);
+            List<ReqRegistLifestyleResultDetailDto> lifestyleResultDetail = dto.getLifestyleDetail();
+            Map<String, Object> params = Map.of(
+                    "resultId", lifestyleResult.getLifestyleResultId(),
+                    "lifestyleResultDetailList", lifestyleResultDetail
+            );
+            consultingManageMapper.saveLifestyleResultDetail(params);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 결과지 등록중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 결과지 항목 수정 모달창 출력
@@ -630,26 +665,30 @@ public class ConsultingManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
 
-        LifestyleResult lifestyleResult = LifestyleResult.builder()
-                .lifestyleResultId(dto.getLifestyleResultId())
-                .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
-                .lifestyleResultStatus(dto.getLifestyleResultStatus())
-                .build();
-        consultingManageMapper.modifyLifestyleResult(lifestyleResult);
-
-        List<ReqModifyLifestyleResultDetailDto> lifestyleDetail = dto.getLifestyleDetail();
-        List<LifestyleResultDetail> modifyLifestyleDetail = new ArrayList<>();
-        for(ReqModifyLifestyleResultDetailDto lifestyleDetailDto : lifestyleDetail) {
-            LifestyleResultDetail lifestyleResultDetail = LifestyleResultDetail.builder()
-                    .lifestyleResultDetailId(lifestyleDetailDto.getLifestyleResultDetailId())
-                    .lifestyleResultTitle(lifestyleDetailDto.getLifestyleResultTitle())
-                    .lifestyleResultContent(lifestyleDetailDto.getLifestyleResultContent())
-                    .lifestyleResultScoreMin(lifestyleDetailDto.getLifestyleResultScoreMin())
-                    .lifestyleResultScoreMax(lifestyleDetailDto.getLifestyleResultScoreMax())
+        try {
+            LifestyleResult lifestyleResult = LifestyleResult.builder()
+                    .lifestyleResultId(dto.getLifestyleResultId())
+                    .lifestyleResultUnitTitle(dto.getLifestyleResultUnitTitle())
+                    .lifestyleResultStatus(dto.getLifestyleResultStatus())
                     .build();
-            modifyLifestyleDetail.add(lifestyleResultDetail);
+            consultingManageMapper.modifyLifestyleResult(lifestyleResult);
+
+            List<ReqModifyLifestyleResultDetailDto> lifestyleDetail = dto.getLifestyleDetail();
+            List<LifestyleResultDetail> modifyLifestyleDetail = new ArrayList<>();
+            for(ReqModifyLifestyleResultDetailDto lifestyleDetailDto : lifestyleDetail) {
+                LifestyleResultDetail lifestyleResultDetail = LifestyleResultDetail.builder()
+                        .lifestyleResultDetailId(lifestyleDetailDto.getLifestyleResultDetailId())
+                        .lifestyleResultTitle(lifestyleDetailDto.getLifestyleResultTitle())
+                        .lifestyleResultContent(lifestyleDetailDto.getLifestyleResultContent())
+                        .lifestyleResultScoreMin(lifestyleDetailDto.getLifestyleResultScoreMin())
+                        .lifestyleResultScoreMax(lifestyleDetailDto.getLifestyleResultScoreMax())
+                        .build();
+                modifyLifestyleDetail.add(lifestyleResultDetail);
+            }
+            consultingManageMapper.modifyLifestyleResultDetail(modifyLifestyleDetail);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 결과지 수정중 오류가 발생했습니다. (서버 오류)");
         }
-        consultingManageMapper.modifyLifestyleResultDetail(modifyLifestyleDetail);
     }
 
     // 컨설팅 결과지 항목 삭제
@@ -660,7 +699,12 @@ public class ConsultingManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-        consultingManageMapper.deleteLifestyleResult(resultId);
+
+        try {
+            consultingManageMapper.deleteLifestyleResult(resultId);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 결과지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 컨설팅 결과지 항목 복수개 삭제
@@ -672,10 +716,15 @@ public class ConsultingManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
         List<Integer> resultIdList = dto.getLifestyleResultIdList();
-        consultingManageMapper.deleteLifestyleResultList(resultIdList);
+
+        try {
+            consultingManageMapper.deleteLifestyleResultList(resultIdList);
+        } catch (Exception e) {
+            throw new Exception("컨설팅 결과지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
-    // 컨설팅 회원 리스트 출력
+    // 컨설팅 회원 리스트 출력 (하는 도중 중단)
     public String getConsultingMemberList(ReqGetConsultingMemberListDto dto) {
         int startIndex = (dto.getPage() - 1) * dto.getLimit();
         Map<String, Object> params = Map.of(

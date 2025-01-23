@@ -37,7 +37,7 @@ public class SettingController {
     // 설정(약관 email, phone, sns 주소 등) 항목 수정
     @PutMapping("/modify/{settingId}")
     @ApiOperation(value = "세팅 - 세팅 정보 수정(단일)")
-    public ResponseEntity<?> modifySetting(@RequestBody ReqModifySettingInfoDto dto, @PathVariable int settingId) {
+    public ResponseEntity<?> modifySetting(@RequestBody ReqModifySettingInfoDto dto, @PathVariable int settingId) throws Exception {
         settingService.modifySettingInfo(dto);
         return ResponseEntity.ok().body(true);
     }

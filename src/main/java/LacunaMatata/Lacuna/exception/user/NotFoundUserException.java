@@ -1,4 +1,4 @@
-package LacunaMatata.Lacuna.exception.user.userException;
+package LacunaMatata.Lacuna.exception.user;
 
 public class NotFoundUserException extends RuntimeException{
     public NotFoundUserException(String message) {

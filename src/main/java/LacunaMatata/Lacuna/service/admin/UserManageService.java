@@ -10,8 +10,10 @@ import LacunaMatata.Lacuna.entity.user.UserOptionalInfo;
 import LacunaMatata.Lacuna.entity.user.UserRole;
 import LacunaMatata.Lacuna.entity.user.UserRoleMet;
 import LacunaMatata.Lacuna.repository.admin.UserManageMapper;
+import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import LacunaMatata.Lacuna.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +78,11 @@ public class UserManageService {
     // 사용자 등록
     @Transactional(rollbackFor = Exception.class)
     public void registUser(ReqRegistUserDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
 
         try {
             User user = User.builder()
@@ -155,6 +162,11 @@ public class UserManageService {
     // 사용자 수정(권한)
     @Transactional(rollbackFor = Exception.class)
     public void modifyUser(ReqModifyUserDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         User user = userManageMapper.findUserById(dto.getUserId());
 
         int originalRoleId = user.getRoleId();
@@ -164,85 +176,109 @@ public class UserManageService {
             return;
         }
 
-        if(originalRoleId > modifyRoleId) {
-            List<Integer> roleIdList = new ArrayList<>();
-            for(int i = originalRoleId; i > modifyRoleId; i--) {
-                roleIdList.add(i);
-            }
-            Map<String, Object> params = Map.of(
-                    "userId", user.getUserId(),
-                    "roleIdList", roleIdList
-            );
-            userManageMapper.deleteUserRoleMet(params);
-        }
-
-        if(originalRoleId < modifyRoleId) {
-            List<Integer> roleIdList = new ArrayList<>();
-
-            for(int i = modifyRoleId; i > originalRoleId; i--) {
-                roleIdList.add(i);
+        try {
+            if(originalRoleId > modifyRoleId) {
+                List<Integer> roleIdList = new ArrayList<>();
+                for(int i = originalRoleId; i > modifyRoleId; i--) {
+                    roleIdList.add(i);
+                }
+                Map<String, Object> params = Map.of(
+                        "userId", user.getUserId(),
+                        "roleIdList", roleIdList
+                );
+                userManageMapper.deleteUserRoleMet(params);
             }
 
-            Map<String, Object> params = Map.of(
-                    "userId", user.getUserId(),
+            if(originalRoleId < modifyRoleId) {
+                List<Integer> roleIdList = new ArrayList<>();
+
+                for(int i = modifyRoleId; i > originalRoleId; i--) {
+                    roleIdList.add(i);
+                }
+
+                Map<String, Object> params = Map.of(
+                        "userId", user.getUserId(),
+                        "roleIdList", roleIdList
+                );
+                userManageMapper.saveUserRoleMet(params);
+            }
+
+            List<Integer> roleIdList = new ArrayList<>();
+            for(int i = 1; i < modifyRoleId + 1; i++) {
+                roleIdList.add(i);
+            }
+            Map<String, Object> modifyParams = Map.of(
+                    "userId", dto.getUserId(),
                     "roleIdList", roleIdList
             );
-            userManageMapper.saveUserRoleMet(params);
-        }
+            userManageMapper.modifyUserRoleMetDate(modifyParams);
 
-        List<Integer> roleIdList = new ArrayList<>();
-        for(int i = 1; i < modifyRoleId + 1; i++) {
-            roleIdList.add(i);
-        }
-        Map<String, Object> modifyParams = Map.of(
-                "userId", dto.getUserId(),
-                "roleIdList", roleIdList
-        );
-        userManageMapper.modifyUserRoleMetDate(modifyParams);
+            // 폰번호 변경
+            if(!user.getUserOptionalInfo().getPhoneNumber().equals(dto.getPhoneNumber()) && !dto.getPhoneNumber().isEmpty() && dto.getPhoneNumber() != null) {
+                Map<String, Object> params = Map.of(
+                        "userId", dto.getUserId(),
+                        "phoneNumber", dto.getPhoneNumber()
+                );
+                userManageMapper.modifyManagePhoneInfo(params);
+            }
 
-        // 폰번호 변경
-        if(!user.getUserOptionalInfo().getPhoneNumber().equals(dto.getPhoneNumber()) && !dto.getPhoneNumber().isEmpty() && dto.getPhoneNumber() != null) {
-            Map<String, Object> params = Map.of(
+            // 이메일 변경시
+            if(!user.getEmail().equals(dto.getEmail()) && !dto.getEmail().isEmpty() && dto.getEmail() != null) {
+                Map<String, Object> params = Map.of(
+                        "userId", dto.getUserId(),
+                        "email", dto.getEmail()
+                );
+                userManageMapper.modifyManageEmailInfo(params);
+            }
+
+            // 비밀번호 변경시
+            if(dto.getPassword().isEmpty() || user.getPassword().equals(dto.getPassword()) || dto.getPassword() == null) {
+                return;
+            }
+
+            if(!dto.getPassword().equals(dto.getPasswordCheck())) {
+                throw new Exception("비밀번호 불일치");
+            }
+
+            // 비밀번호 변경
+            Map<String, Object> params1 = Map.of(
                     "userId", dto.getUserId(),
-                    "phoneNumber", dto.getPhoneNumber()
+                    "password", dto.getPassword()
             );
-            userManageMapper.modifyManagePhoneInfo(params);
+            userManageMapper.modifyPasswordInfo(params1);
+        } catch (Exception e) {
+            throw new Exception("회원 정보 수정중 오류가 발생했습니다. (서버 오류)");
         }
-
-        // 이메일 변경시
-        if(!user.getEmail().equals(dto.getEmail()) && !dto.getEmail().isEmpty() && dto.getEmail() != null) {
-            Map<String, Object> params = Map.of(
-                    "userId", dto.getUserId(),
-                    "email", dto.getEmail()
-            );
-            userManageMapper.modifyManageEmailInfo(params);
-        }
-
-        // 비밀번호 변경시
-        if(dto.getPassword().isEmpty() || user.getPassword().equals(dto.getPassword()) || dto.getPassword() == null) {
-            return;
-        }
-
-        if(!dto.getPassword().equals(dto.getPasswordCheck())) {
-            throw new Exception("비밀번호 불일치");
-        }
-
-        // 비밀번호 변경
-        Map<String, Object> params1 = Map.of(
-                "userId", dto.getUserId(),
-                "password", dto.getPassword()
-        );
-        userManageMapper.modifyPasswordInfo(params1);
     }
 
     // 사용자 삭제
-    public void deleteUser(int userId) {
-        userManageMapper.deleteByUserId(userId);
+    public void deleteUser(int userId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            userManageMapper.deleteByUserId(userId);
+        } catch (Exception e) {
+            throw new Exception("회원을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 사용자 복수개 삭제
-    public void deleteUserList(ReqDeleteUserListDto dto) {
+    public void deleteUserList(ReqDeleteUserListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         List<Integer> userIdList = dto.getUserIdList();
-        userManageMapper.deleteByUserList(userIdList);
+
+        try {
+            userManageMapper.deleteByUserList(userIdList);
+        } catch (Exception e) {
+            throw new Exception("회원을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 }

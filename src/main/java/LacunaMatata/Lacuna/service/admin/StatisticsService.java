@@ -4,6 +4,7 @@ import LacunaMatata.Lacuna.dto.request.admin.statistic.ReqGetUseCountDto;
 import LacunaMatata.Lacuna.dto.request.admin.statistic.ReqGetStatisticCountsDto;
 import LacunaMatata.Lacuna.dto.response.admin.statistic.*;
 import LacunaMatata.Lacuna.entity.user.UserCount;
+import LacunaMatata.Lacuna.exception.admin.NotFoundDataException;
 import LacunaMatata.Lacuna.repository.admin.StatisticsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class StatisticsService {
         );
 
         List<UserCount> userCountList = statisticsMapper.getUseCountByDate(params);
+        if(userCountList.isEmpty()) {
+            throw new NotFoundDataException("조건에 해당하는 데이터가 존재하지 않습니다.");
+        }
 
         List<RespServiceCountDto> respServiceCountDtoList = new ArrayList<>();
         int totalCount = 0;
@@ -51,6 +55,10 @@ public class StatisticsService {
     public RespMbtiStatisticCountAndRankDto getMbtiStatisticCounts(ReqGetStatisticCountsDto dto) {
         List<RespMbtiStatisticCountDto> respMbtiStatisticCountDtos = statisticsMapper.getStatisticCountByStartDateAndEndDate(dto);
         List<RespMbtiStatisticRankDto> respMbtiStatisticRankDtos = statisticsMapper.problemStatistic(dto);
+
+        if(respMbtiStatisticCountDtos.isEmpty() && respMbtiStatisticRankDtos.isEmpty()) {
+            throw new NotFoundDataException("조건에 해당하는 데이터가 존재하지 않습니다.");
+        }
 
         return RespMbtiStatisticCountAndRankDto.builder()
                 .mbtiStatisticCounts(respMbtiStatisticCountDtos)

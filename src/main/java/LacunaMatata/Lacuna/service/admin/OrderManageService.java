@@ -9,7 +9,9 @@ import LacunaMatata.Lacuna.entity.order.Order;
 import LacunaMatata.Lacuna.entity.order.OrderItem;
 import LacunaMatata.Lacuna.entity.order.Payment;
 import LacunaMatata.Lacuna.repository.admin.OrderManageMapper;
+import LacunaMatata.Lacuna.security.principal.PrincipalUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,9 +99,20 @@ public class OrderManageService {
 
     // 회원 결제 취소하기 (결제 취소하기) - 계좌 시스템 공통
     @Transactional(rollbackFor = Exception.class)
-    public void cancelSystemOrder(int paymentId) {
-        orderManageMapper.cancelSystemPayment(paymentId);
-        orderManageMapper.cancelSystemOrder(paymentId);
+    public void cancelSystemOrder(int paymentId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            orderManageMapper.cancelSystemPayment(paymentId);
+            orderManageMapper.cancelSystemOrder(paymentId);
+        } catch (Exception e) {
+            throw new Exception("회원님의 결제 항목을 취소하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
 //    // 주문 수정 - 회원 결제 취소하기 (계좌 이체)    // 시스템 결제와 동일
@@ -120,6 +133,13 @@ public class OrderManageService {
     // 주문 수정 - 회원 결제 승인하기 (계좌 이체)
     @Transactional(rollbackFor = Exception.class)
     public void approveAccountOrder(int orderId ,ReqApprovePaymentAccountDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         BigDecimal amount = dto.getAmount();
 //        LocalDateTime now = LocalDateTime.now();
 //        String paymentApproveId = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -129,20 +149,44 @@ public class OrderManageService {
             throw new Exception("결제 금액이 맞지 않습니다.");
         }
 
-        orderManageMapper.approveAccountPayment(orderId);
-        orderManageMapper.approveAccountOrder(orderId);
+        try {
+            orderManageMapper.approveAccountPayment(orderId);
+            orderManageMapper.approveAccountOrder(orderId);
+        } catch (Exception e) {
+            throw new Exception("회원님의 결제 항목을 취소하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 회원 주문 항목 삭제
-    public void deleteOrder(int orderId) {
-        orderManageMapper.deleteOrder(orderId);
+    public void deleteOrder(int orderId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            orderManageMapper.deleteOrder(orderId);
+        } catch (Exception e) {
+            throw new Exception("회원님의 주문 항목을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 회원 주문 항목 복수개 삭제
-    public void deleteOrderList(ReqDeleteOrderListDto dto) {
+    public void deleteOrderList(ReqDeleteOrderListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         List<Integer> orderIdList = dto.getOrderIdList();
-        orderManageMapper.deleteOrderList(orderIdList);
+
+        try {
+            orderManageMapper.deleteOrderList(orderIdList);
+        } catch (Exception e) {
+            throw new Exception("회원님의 주문 항목을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
-
-
 }

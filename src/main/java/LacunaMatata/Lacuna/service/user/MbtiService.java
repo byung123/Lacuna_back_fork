@@ -44,7 +44,7 @@ public class MbtiService {
     }
 
     // mbti 설문 답안 등록
-    public int submitMbti(ReqMbtiAnswerDto dto, HttpServletRequest request) {
+    public int submitMbti(ReqMbtiAnswerDto dto, HttpServletRequest request) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         int gender = dto.getGender();
@@ -80,8 +80,12 @@ public class MbtiService {
                 }
             }
 
-            mbtiMapper.saveNonUserMbtiSurvey(mbtiResponseList);
-            return mbtiResultId;
+            try {
+                mbtiMapper.saveNonUserMbtiSurvey(mbtiResponseList);
+                return mbtiResultId;
+            } catch (Exception e) {
+                throw new Exception("mbti 결과정보를 등록하는 도중 오류가 발생했습니다. (서버 오류)");
+            }
         }
 
         PrincipalUser principalUser = (PrincipalUser) authentication.getPrincipal();
@@ -105,7 +109,11 @@ public class MbtiService {
             }
         }
 
-        mbtiMapper.saveUserMbtiSurvey(mbtiResponseList);
+        try {
+            mbtiMapper.saveUserMbtiSurvey(mbtiResponseList);
+        } catch (Exception e) {
+            throw new Exception("mbti 결과정보를 등록하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
 
         // 등록 후 결과값 반환
         return mbtiResultId;

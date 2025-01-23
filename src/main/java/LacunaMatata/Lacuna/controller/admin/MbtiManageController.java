@@ -151,7 +151,7 @@ public class MbtiManageController {
     // MBTI 설문 결과 등록
     @ApiOperation(value = "MBTI 결과지 - 등록")
     @PostMapping("/result/regist")
-    public ResponseEntity<?> registMbtiResult(@ModelAttribute ReqRegistMbtiResultDto dto) throws IOException {
+    public ResponseEntity<?> registMbtiResult(@ModelAttribute ReqRegistMbtiResultDto dto) throws Exception {
         mbtiManageService.registMbtiResult(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -167,7 +167,7 @@ public class MbtiManageController {
     // MBTI 설문 결과 항목 수정
     @ApiOperation(value = "MBTI 결과지 - 수정")
     @PostMapping("/result/modify/{resultId}")
-    public ResponseEntity<?> modifyMbtiResult(@ModelAttribute ReqModifyMbtiResultDto dto, @PathVariable int resultId) throws IOException {
+    public ResponseEntity<?> modifyMbtiResult(@ModelAttribute ReqModifyMbtiResultDto dto, @PathVariable int resultId) throws Exception {
         mbtiManageService.modifyMbtiResult(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -175,7 +175,7 @@ public class MbtiManageController {
     // MBTI 설문 결과 삭제
     @ApiOperation(value = "MBTI 결과지 - 단일 삭제")
     @DeleteMapping("/result/delete/{resultId}")
-    public ResponseEntity<?> deleteMbtiResult(@PathVariable int resultId) {
+    public ResponseEntity<?> deleteMbtiResult(@PathVariable int resultId) throws Exception {
         mbtiManageService.deleteMbtiResult(resultId);
         return ResponseEntity.ok().body(true);
     }
@@ -183,7 +183,7 @@ public class MbtiManageController {
     // MBTI 설문 결과 복수개 삭제
     @ApiOperation(value = "MBTI 결과지 - 복수 삭제")
     @DeleteMapping("/result/delete")
-    public ResponseEntity<?> deleteMbtiResultList(@RequestBody ReqDeleteMbtiResultListDto dto) {
+    public ResponseEntity<?> deleteMbtiResultList(@RequestBody ReqDeleteMbtiResultListDto dto) throws Exception {
         mbtiManageService.deleteMbtiResultList(dto);
         return ResponseEntity.ok().body(true);
     }

@@ -1,4 +1,4 @@
-package LacunaMatata.Lacuna.exception.user.userException;
+package LacunaMatata.Lacuna.exception.user;
 
 public class NotFoundMyOrderInfoException extends RuntimeException{
     public NotFoundMyOrderInfoException(String message) {

@@ -59,16 +59,24 @@ public class ProductManageService {
     }
 
     // 상품 상위 분류 카테고리 등록
-    public void registProductUpperCategory(ReqRegistUpperProductCategoryDto dto) {
-
+    public void registProductUpperCategory(ReqRegistUpperProductCategoryDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int registerId = principalUser.getId();
         ProductUpperCategory productUpperCategory = ProductUpperCategory.builder()
                 .productUpperCategoryName(dto.getProductUpperCategoryName())
                 .productUpperCategoryRegisterId(registerId)
                 .build();
 
-        productManageMapper.saveProductUpperCategory(productUpperCategory);
+        try {
+            productManageMapper.saveProductUpperCategory(productUpperCategory);
+        } catch (Exception e) {
+            throw new Exception("상품 상위 분류를 등록하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 상위 분류 카테고리 항목 출력
@@ -82,8 +90,13 @@ public class ProductManageService {
     }
 
     // 상품 상위 분류 카테고리 수정
-    public void modifyProductUpperCategory(ReqModifyUpperProductDto dto, int upperId) {
+    public void modifyProductUpperCategory(ReqModifyUpperProductDto dto, int upperId) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         int registerId = principalUser.getId();
         ProductUpperCategory productUpperCategory = ProductUpperCategory.builder()
                 .productUpperCategoryId(dto.getProductUpperCategoryId())
@@ -91,18 +104,42 @@ public class ProductManageService {
                 .productUpperCategoryRegisterId(registerId)
                 .build();
 
-        productManageMapper.modifyProductUpperCategory(productUpperCategory);
+        try {
+            productManageMapper.modifyProductUpperCategory(productUpperCategory);
+        } catch (Exception e) {
+            throw new Exception("상품 상위 분류를 수정하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
-    // 상품 상위 분류 카테고리 삭제
-    public void deleteProductUpperCategory(int upperId) {
-        productManageMapper.deleteUpperProductCategory(upperId);
+    // 상품 상위 분류 카테고리 단일 삭제
+    public void deleteProductUpperCategory(int upperId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            productManageMapper.deleteUpperProductCategory(upperId);
+        } catch (Exception e) {
+            throw new Exception("상품 상위 분류를 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 상위 분류 카테고리 복수개 삭제
-    public void deleteProductUpperCategoryList(ReqDeleteUpperProductCategoryListDto dto) {
+    public void deleteProductUpperCategoryList(ReqDeleteUpperProductCategoryListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         List<Integer> upperIdList = dto.getUpperCategoryIdList();
-        productManageMapper.deleteUpperProductCategoryList(upperIdList);
+
+        try {
+            productManageMapper.deleteUpperProductCategoryList(upperIdList);
+        } catch (Exception e) {
+            throw new Exception("상품 상위 분류를 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 하위 분류 리스트 출력
@@ -143,16 +180,25 @@ public class ProductManageService {
     }
 
     // 상품 하위 분류 카테고리 등록
-    public void registProductlowerCategory(ReqRegistLowerProductCategoryDto dto) {
+    public void registProductlowerCategory(ReqRegistLowerProductCategoryDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
+
         ProductLowerCategory productLowerCategory = ProductLowerCategory.builder()
                 .productLowerCategoryName(dto.getProductLowerCategoryName())
                 .productLowerCategoryRegisterId(registerId)
                 .productUpperCategoryId(dto.getProductUpperCategoryId())
                 .build();
 
-        productManageMapper.saveProductLowerCategory(productLowerCategory);
+        try {
+            productManageMapper.saveProductLowerCategory(productLowerCategory);
+        } catch (Exception e) {
+            throw new Exception("상품 하위 분류를 등록하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 하위 분류 카테고리 수정 모달창 출력
@@ -169,27 +215,56 @@ public class ProductManageService {
     }
 
     // 상품 하위 분류 카테고리 수정
-    public void modifyProductlowerCategory(ReqModifyLowerProductCategoryDto dto) {
+    public void modifyProductlowerCategory(ReqModifyLowerProductCategoryDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
+
         ProductLowerCategory productLowerCategory = ProductLowerCategory.builder()
                 .productLowerCategoryId(dto.getProductLowerCategoryId())
                 .productLowerCategoryName(dto.getProductLowerCategoryName())
                 .productLowerCategoryRegisterId(registerId)
                 .build();
 
-        productManageMapper.modifyProductLowerCategory(productLowerCategory);
+        try {
+            productManageMapper.modifyProductLowerCategory(productLowerCategory);
+        } catch (Exception e) {
+            throw new Exception("상품 하위 분류를 수정하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 하위 분류 카테고리 삭제
-    public void deleteProductlowerCategory(int lowerId) {
-        productManageMapper.deleteProductLowerCategory(lowerId);
+    public void deleteProductlowerCategory(int lowerId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            productManageMapper.deleteProductLowerCategory(lowerId);
+        } catch (Exception e) {
+            throw new Exception("상품 하위 분류를 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 하위 분류 카테고리 복수개 삭제
-    public void deleteProductlowerCategoryList(ReqDeleteLowerProductCategoryListDto dto) {
+    public void deleteProductlowerCategoryList(ReqDeleteLowerProductCategoryListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         List<Integer> lowerIdList = dto.getLowerCategoryIdList();
-        productManageMapper.deleteProductLowerCategoryList(lowerIdList);
+
+        try {
+            productManageMapper.deleteProductLowerCategoryList(lowerIdList);
+        } catch (Exception e) {
+            throw new Exception("상품 하위 분류를 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 리스트 출력
@@ -242,6 +317,10 @@ public class ProductManageService {
     @Transactional(rollbackFor = Exception.class)
     public void registProduct(ReqRegistProductDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registeId = principalUser.getId();
 
         // 이미지 등록
@@ -249,51 +328,55 @@ public class ProductManageService {
         List<MultipartFile> insertImgs = dto.getInsertImgs();
         String insertCompletedImgPath = null;
 
-        // 2. 신규 이미지 저장
-        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-            insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "product/");
-        }
+        try {
+            // 2. 신규 이미지 저장
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "product/");
+            }
 
-        Product product = Product.builder()
-                .productProductUpperCategoryId(dto.getProductUpperCategoryId())
-                .productLowerCategoryId(dto.getProductLowerCategoryId())
-                .productCode(dto.getProductCode())
-                .productName(dto.getProductName())
-                .subtitle(dto.getSubtitle())
-                .price(BigDecimal.valueOf(dto.getPrice()))
-                .promotionPrice(BigDecimal.valueOf(dto.getPromotionPrice()))
-                .productImg(insertCompletedImgPath)
-                .productRegisterId(registeId)
-                .description(dto.getDescription())
-                .etc(dto.getEtc())
-                .build();
+            Product product = Product.builder()
+                    .productProductUpperCategoryId(dto.getProductUpperCategoryId())
+                    .productLowerCategoryId(dto.getProductLowerCategoryId())
+                    .productCode(dto.getProductCode())
+                    .productName(dto.getProductName())
+                    .subtitle(dto.getSubtitle())
+                    .price(BigDecimal.valueOf(dto.getPrice()))
+                    .promotionPrice(BigDecimal.valueOf(dto.getPromotionPrice()))
+                    .productImg(insertCompletedImgPath)
+                    .productRegisterId(registeId)
+                    .description(dto.getDescription())
+                    .etc(dto.getEtc())
+                    .build();
 
-        productManageMapper.saveProduct(product);
+            productManageMapper.saveProduct(product);
 
-        // Todo 상품 세부 정보 컨설팅 분류에 맞게 넣는거 알아서 짜봐여. (dto, enttiy 확인 및 수정 필요
-        // Todo insert 된 id는 useGenerator 사용하면 build한 엔티티 변수에 들어있는 것을 사용하면 됨 (위 이미지 넣은 방법 참조)
-        switch (dto.getProductUpperCategoryId()) {
-            case 1:
-                // ConsultingContent 내용 들어갈 곳
-                List<ConsultingDetail> consultingDetails = objectMapper.readValue(dto.getConsultingContent(), new TypeReference<>() {});
+            // Todo 상품 세부 정보 컨설팅 분류에 맞게 넣는거 알아서 짜봐여. (dto, enttiy 확인 및 수정 필요
+            // Todo insert 된 id는 useGenerator 사용하면 build한 엔티티 변수에 들어있는 것을 사용하면 됨 (위 이미지 넣은 방법 참조)
+            switch (dto.getProductUpperCategoryId()) {
+                case 1:
+                    // ConsultingContent 내용 들어갈 곳
+                    List<ConsultingDetail> consultingDetails = objectMapper.readValue(dto.getConsultingContent(), new TypeReference<>() {});
 
-                productManageMapper.saveConsultingDetail(consultingDetails.stream().map(consultingDetail -> {
-                    consultingDetail.setConsultingDetailProductId(product.getProductId());
-                    return consultingDetail;
-                }).collect(Collectors.toList()));
-                break;
-            case 2:
-                CosmeticDetail cosmeticDetail = CosmeticDetail.builder()
-                        .cosmeticDetailProductId(product.getProductId())
-                        .volume(dto.getVolume())
-                        .ingredient(dto.getIngredient())
-                        .skinType(dto.getSkinType())
-                        .effect(dto.getEffect())
-                        .manufacture(dto.getManufacture())
-                        .productUrl(dto.getProductUrl())
-                        .build();
-                productManageMapper.saveCosmeticDetail(cosmeticDetail);
-                break;
+                    productManageMapper.saveConsultingDetail(consultingDetails.stream().map(consultingDetail -> {
+                        consultingDetail.setConsultingDetailProductId(product.getProductId());
+                        return consultingDetail;
+                    }).collect(Collectors.toList()));
+                    break;
+                case 2:
+                    CosmeticDetail cosmeticDetail = CosmeticDetail.builder()
+                            .cosmeticDetailProductId(product.getProductId())
+                            .volume(dto.getVolume())
+                            .ingredient(dto.getIngredient())
+                            .skinType(dto.getSkinType())
+                            .effect(dto.getEffect())
+                            .manufacture(dto.getManufacture())
+                            .productUrl(dto.getProductUrl())
+                            .build();
+                    productManageMapper.saveCosmeticDetail(cosmeticDetail);
+                    break;
+            }
+        } catch (Exception e) {
+            throw new Exception("상품을 등록하는 도중 오류가 발생했습니다. (서버 오류)");
         }
     }
 
@@ -320,8 +403,12 @@ public class ProductManageService {
 
     // 상품 수정
     @Transactional(rollbackFor = Exception.class)
-    public void modifyProduct(ReqModifyProductDto dto) throws IOException {
+    public void modifyProduct(ReqModifyProductDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
 
         /* 이미지 삭제 후 이미지 추가 */
@@ -342,59 +429,83 @@ public class ProductManageService {
             finalImgPath = null;
         }
 
-        // 이미지 등록
-        // 1. 이미지 수정할 공간 생성
-        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-            finalImgPath = registerImgUrl(insertImgs.get(0), "product/");
-        }
+        try {
+            // 이미지 등록
+            // 1. 이미지 수정할 공간 생성
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                finalImgPath = registerImgUrl(insertImgs.get(0), "product/");
+            }
 
-        Product product = Product.builder()
-                .productId(dto.getProductId())
-                .productProductUpperCategoryId(dto.getProductUpperCategoryId())
-                .productLowerCategoryId(dto.getProductLowerCategoryId())
-                .productCode(dto.getProductCode())
-                .productName(dto.getProductName())
-                .subtitle(dto.getSubtitle())
-                .price(BigDecimal.valueOf(dto.getPrice()))
-                .promotionPrice(BigDecimal.valueOf(dto.getPromotionPrice()))
-                .productImg(finalImgPath)
-                .productRegisterId(registerId)
-                .description(dto.getDescription())
-                .etc(dto.getEtc())
-                .build();
-        productManageMapper.modifyProduct(product);
-
-        if(product.getProductProductUpperCategoryId() == 1) {
-
-            // Todo 나중에 확인 필요
-            List<ConsultingDetail> consultingDetails = objectMapper.readValue(dto.getConsultingContent(), new TypeReference<>() {});
-            productManageMapper.modifyConsultingDetail(consultingDetails);
-        }
-
-        if(product.getProductProductUpperCategoryId() == 2) {
-            CosmeticDetail cosmeticDetail = CosmeticDetail.builder()
-                    .cosmeticDetailId(dto.getCosmeticDetailId())
-                    .cosmeticDetailProductId(dto.getCosmeticDetailProductId())
-                    .volume(dto.getVolume())
-                    .ingredient(dto.getIngredient())
-                    .skinType(dto.getSkinType())
-                    .effect(dto.getEffect())
-                    .manufacture(dto.getManufacture())
-                    .productUrl(dto.getProductUrl())
+            Product product = Product.builder()
+                    .productId(dto.getProductId())
+                    .productProductUpperCategoryId(dto.getProductUpperCategoryId())
+                    .productLowerCategoryId(dto.getProductLowerCategoryId())
+                    .productCode(dto.getProductCode())
+                    .productName(dto.getProductName())
+                    .subtitle(dto.getSubtitle())
+                    .price(BigDecimal.valueOf(dto.getPrice()))
+                    .promotionPrice(BigDecimal.valueOf(dto.getPromotionPrice()))
+                    .productImg(finalImgPath)
+                    .productRegisterId(registerId)
+                    .description(dto.getDescription())
+                    .etc(dto.getEtc())
                     .build();
-            productManageMapper.modifyCosmeticDetail(cosmeticDetail);
+            productManageMapper.modifyProduct(product);
+
+            if(product.getProductProductUpperCategoryId() == 1) {
+
+                // Todo 나중에 확인 필요
+                List<ConsultingDetail> consultingDetails = objectMapper.readValue(dto.getConsultingContent(), new TypeReference<>() {});
+                productManageMapper.modifyConsultingDetail(consultingDetails);
+            }
+
+            if(product.getProductProductUpperCategoryId() == 2) {
+                CosmeticDetail cosmeticDetail = CosmeticDetail.builder()
+                        .cosmeticDetailId(dto.getCosmeticDetailId())
+                        .cosmeticDetailProductId(dto.getCosmeticDetailProductId())
+                        .volume(dto.getVolume())
+                        .ingredient(dto.getIngredient())
+                        .skinType(dto.getSkinType())
+                        .effect(dto.getEffect())
+                        .manufacture(dto.getManufacture())
+                        .productUrl(dto.getProductUrl())
+                        .build();
+                productManageMapper.modifyCosmeticDetail(cosmeticDetail);
+            }
+        } catch (Exception e) {
+            throw new Exception("상품을 수정하는 도중 오류가 발생했습니다. (서버 오류)");
         }
     }
 
     // 상품 삭제
-    public void deleteProduct(int productId) {
-        productManageMapper.deleteProduct(productId);
+    public void deleteProduct(int productId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            productManageMapper.deleteProduct(productId);
+        } catch (Exception e) {
+            throw new Exception("상품을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 복수개 삭제
-    public void deleteProductList(ReqDeleteProductDto dto) {
+    public void deleteProductList(ReqDeleteProductDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         List<Integer> productIdList =  dto.getProductIdList();
-        productManageMapper.deleteProductList(productIdList);
+
+        try {
+            productManageMapper.deleteProductList(productIdList);
+        } catch (Exception e) {
+            throw new Exception("상품을 삭제하는 도중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // 상품 상위 카테고리 분류 출력(필터용)

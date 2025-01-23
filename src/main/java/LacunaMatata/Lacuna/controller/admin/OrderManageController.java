@@ -64,7 +64,7 @@ public class OrderManageController {
     // 회원 결제 취소하기(결제 시스템) - 계좌, 시스템 공통
     @PutMapping("/payment/cancel/{paymentId}")
     @ApiOperation(value = "결제 - 결제 취소") // test 완료
-    public ResponseEntity<?> cancelSystemPayment(@PathVariable int paymentId) {
+    public ResponseEntity<?> cancelSystemPayment(@PathVariable int paymentId) throws Exception {
         orderManageService.cancelSystemOrder(paymentId);
         return ResponseEntity.ok().body(true);
     }
@@ -97,7 +97,7 @@ public class OrderManageController {
     // 회원 주문 항목 삭제
     @DeleteMapping("/delete/{orderId}")
     @ApiOperation(value = "주문 - 주문 항목 단일 삭제") // test 완료
-    public ResponseEntity<?> deleteOrder(@PathVariable int orderId) {
+    public ResponseEntity<?> deleteOrder(@PathVariable int orderId) throws Exception {
         orderManageService.deleteOrder(orderId);
         return ResponseEntity.ok().body(true);
     }
@@ -105,7 +105,7 @@ public class OrderManageController {
     // 회원 주문 항목 복수개 삭제
     @DeleteMapping("/delete")
     @ApiOperation(value = "주문 - 주문 항목 복수 삭제") // test 완료
-    public ResponseEntity<?> deleteOrderList(@RequestBody ReqDeleteOrderListDto dto) {
+    public ResponseEntity<?> deleteOrderList(@RequestBody ReqDeleteOrderListDto dto) throws Exception {
         orderManageService.deleteOrderList(dto);
         return ResponseEntity.ok().body(true);
     }

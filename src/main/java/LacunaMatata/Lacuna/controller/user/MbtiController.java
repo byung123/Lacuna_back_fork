@@ -37,7 +37,7 @@ public class MbtiController {
     // mbti 설문 답안 등록
     @PostMapping("/submit")
     @ApiOperation(value = "MBTI 설문지 - 설문 응답 등록")
-    public ResponseEntity<?> submitMbti(@RequestBody ReqMbtiAnswerDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> submitMbti(@RequestBody ReqMbtiAnswerDto dto, HttpServletRequest request) throws Exception {
         int mbtiResultId = mbtiService.submitMbti(dto, request);
         return ResponseEntity.ok().body(mbtiResultId);
     }

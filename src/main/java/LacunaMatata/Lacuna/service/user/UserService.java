@@ -9,9 +9,9 @@ import LacunaMatata.Lacuna.entity.user.User;
 import LacunaMatata.Lacuna.exception.auth.NotMatchPasswordCheckException;
 import LacunaMatata.Lacuna.exception.auth.NotMatchPasswordException;
 import LacunaMatata.Lacuna.exception.auth.TokenValidExpiredException;
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyMbtiResultException;
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundMyOrderInfoException;
-import LacunaMatata.Lacuna.exception.user.userException.NotFoundUserException;
+import LacunaMatata.Lacuna.exception.user.NotFoundMyMbtiResultException;
+import LacunaMatata.Lacuna.exception.user.NotFoundMyOrderInfoException;
+import LacunaMatata.Lacuna.exception.user.NotFoundUserException;
 import LacunaMatata.Lacuna.repository.user.UserMapper;
 import LacunaMatata.Lacuna.security.jwt.JwtProvider;
 import LacunaMatata.Lacuna.security.principal.PrincipalUser;
@@ -26,7 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ public class UserService {
         PrincipalUser principalUser
                 = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(principalUser == null) {
-            throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+            throw new TokenValidExpiredException("로그인 후 이용바랍니다.");
         }
         int userId = principalUser.getId();
 
@@ -152,11 +151,12 @@ public class UserService {
         if(!dto.getPassword().equals(dto.getCheckPassword())) {
             throw new NotMatchPasswordCheckException("비밀번호가 일치하지 않습니다.");
         }
+
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         if(principalUser == null) {
             throw new TokenValidExpiredException("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-
         int userId = principalUser.getId();
 
         String modifyPassword = passwordEncoder.encode(dto.getPassword());

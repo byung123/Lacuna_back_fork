@@ -188,7 +188,12 @@ public class MbtiManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-        mbtiManageMapper.deleteMbtiCategory(categoryId);
+
+        try {
+            mbtiManageMapper.deleteMbtiCategory(categoryId);
+        } catch (Exception e) {
+            throw new Exception("mbti 분류 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // mbti 분류 카테고리 복수개 삭제
@@ -199,7 +204,12 @@ public class MbtiManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
         List<Integer> mbtiCategoryIdList = dto.getMbtiCategoryIdList();
-        mbtiManageMapper.deleteMbtiCategoryList(mbtiCategoryIdList);
+
+        try {
+            mbtiManageMapper.deleteMbtiCategoryList(mbtiCategoryIdList);
+        } catch (Exception e) {
+            throw new Exception("mbti 분류 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // mbti 설문지 리스트 출력
@@ -307,6 +317,10 @@ public class MbtiManageService {
     public void modifyMbtiQuestion(ReqModifyMbtiQuestionDto dto, int mbtiId) throws IOException, Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
 
         try {
@@ -370,7 +384,11 @@ public class MbtiManageService {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
 
-        mbtiManageMapper.deleteMbtiQuestion(mbtiId);
+        try {
+            mbtiManageMapper.deleteMbtiQuestion(mbtiId);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // mbti 설문지 항목 복수개 삭제
@@ -381,9 +399,13 @@ public class MbtiManageService {
         if(principalUser == null) {
             throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
         }
-
         List<Integer> mbtiIdList = dto.getMbtiSurveyIdList();
-        mbtiManageMapper.deleteMbtiQuestionList(mbtiIdList);
+
+        try {
+            mbtiManageMapper.deleteMbtiQuestionList(mbtiIdList);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // mbti 설문 결과 리스트 출력
@@ -419,9 +441,13 @@ public class MbtiManageService {
 
     // mbti 설문 결과 항목 등록
     @Transactional(rollbackFor = Exception.class)
-    public void registMbtiResult(ReqRegistMbtiResultDto dto) throws IOException {
+    public void registMbtiResult(ReqRegistMbtiResultDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
 
         // 이미지 등록
@@ -429,35 +455,26 @@ public class MbtiManageService {
         List<MultipartFile> insertImgs = dto.getInsertImgs();
         String insertCompletedImgPath = null;
 
-        // 2. 신규 이미지 저장
-        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-            insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "mbti/mbtiResult/");
+        try {
+            // 2. 신규 이미지 저장
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                insertCompletedImgPath = registerImgUrl(insertImgs.get(0), "mbti/mbtiResult/");
+            }
+
+            MbtiResult mbtiResult = MbtiResult.builder()
+                    .mbtiResultRegisterId(registerId)
+                    .mbtiResultTitle(dto.getMbtiResultTitle())
+                    .mbtiResultCategoryName(dto.getMbtiResultCategoryName())
+                    .mbtiResultSummary(dto.getMbtiResultSummary())
+                    .mbtiResultContent(dto.getMbtiResultContent())
+                    .mbtiResultImg(insertCompletedImgPath)
+                    .mbtiResultStatus(dto.getMbtiResultStatus())
+                    .build();
+
+            mbtiManageMapper.saveMbtiResult(mbtiResult);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문 결과지 등록중 오류가 발생했습니다. (서버 오류)");
         }
-
-        MbtiResult mbtiResult = MbtiResult.builder()
-                .mbtiResultRegisterId(registerId)
-                .mbtiResultTitle(dto.getMbtiResultTitle())
-                .mbtiResultCategoryName(dto.getMbtiResultCategoryName())
-                .mbtiResultSummary(dto.getMbtiResultSummary())
-                .mbtiResultContent(dto.getMbtiResultContent())
-                .mbtiResultImg(insertCompletedImgPath)
-                .mbtiResultStatus(dto.getMbtiResultStatus())
-                .build();
-
-        mbtiManageMapper.saveMbtiResult(mbtiResult);
-
-//        // 1. 이미지 신규 등록할 공간 생성
-//        List<MultipartFile> insertImgs = dto.getInsertImgs();
-//        List<String> insertCompletedImgPaths = new ArrayList<>();
-//
-//        // 2. 신규 이미지 저장
-//        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-//            for(MultipartFile insertFile: insertImgs) {
-//                // Todo 디렉토리 경로 잘 확인해서 넣어야 함
-//                insertCompletedImgPaths.add(registerImgUrl(insertFile, "mbti/mbtiResult"));
-//            }
-//            mbtiManageMapper.insertMbtiResultImgs(insertCompletedImgPaths, mbtiResult.getMbtiResultId());
-//        }
     }
 
     // mbti 살문 결과 항목 수정 모달창 출력
@@ -477,51 +494,14 @@ public class MbtiManageService {
 
     // mbti 설문 결과 항목 모달 수정
     @Transactional(rollbackFor = Exception.class)
-    public void modifyMbtiResult(ReqModifyMbtiResultDto dto) throws IOException {
+    public void modifyMbtiResult(ReqModifyMbtiResultDto dto) throws Exception {
         PrincipalUser principalUser = (PrincipalUser)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
         int registerId = principalUser.getId();
-
-        /* 이미지 삭제 후 이미지 추가 */
-        // 단계 : 1. 신규 등록, 삭제 공간 생성, 2. 이미지 경로 DB 삭제 및 DB 파일 삭제 3. 신규 데이터 등록
-
-//        // 1. 이미지 신규 등록할 공간 생성
-//        List<MultipartFile> insertImgs = dto.getInsertImgs();
-//        List<String> insertCompletedImgPaths = new ArrayList<>();
-//
-//        // 1. 이미지 삭제할 공간 생성
-//        List<Map<String, Object>> deleteImgs = dto.getDeleteMbtiResultImgs();
-//        List<Long> deleteImgIds = deleteImgs.stream().map(deleteImg -> (Long) deleteImg.get("id")).collect(Collectors.toList());
-//        List<String> deleteImgPaths = deleteImgs.stream().map(deleteImg -> (String) deleteImg.get("path")).collect(Collectors.toList());
-//
-//        // 2. 이미지 경로 DB 삭제 및 DB 파일 삭제
-//        if(deleteImgs != null && !deleteImgs.get(0).isEmpty()) {
-//            // 2-1. 이미지 경로 DB 삭제
-//            mbtiManageMapper.deleteMbtiResultImgs(deleteImgIds);
-//            // Todo foreach를 돌리는데, where 조건에 id in (deleteImgiIds);
-//
-//            // 2-2. 이미지 물리 파일 삭제
-//            for(String deletePath: deleteImgPaths) {
-//                deleteImgUrl(deletePath);
-//            }
-//        }
-//
-//        // 3. 신규 이미지 저장
-//        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-//            for(MultipartFile insertFile: insertImgs) {
-//                // Todo 디렉토리 경로 잘 확인해서 넣어야 함
-//                insertCompletedImgPaths.add(registerImgUrl(insertFile, "mbti/mbtiResult"));
-//            }
-//            mbtiManageMapper.insertMbtiResultImgs(insertCompletedImgPaths, dto.getMbtiResultId());
-//        }
-//
-//
-//        String insertCompletedImgPath = null;
-//        MultipartFile insertImg = dto.getInsertImg();
-//
-//        if(insertImg != null && insertImg.isEmpty()) {
-//            insertCompletedImgPath = registerImgUrl(insertImg, "mbti/mbtiResult");
-//        }
 
         // 1. 최종 수정될 imgPath 공간 생성
         String finalImgPath = dto.getPrevImgPath();
@@ -532,43 +512,68 @@ public class MbtiManageService {
         // 3. 이미지 삭제할 공간 생성
         String deleteImgPath = dto.getDeleteImgPath();
 
-        // 4. 물리 파일 삭제
-        if(deleteImgPath != null && !deleteImgPath.isEmpty()) {
-            deleteImgUrl(deleteImgPath);
-            finalImgPath = null;
+        try {
+            // 4. 물리 파일 삭제
+            if(deleteImgPath != null && !deleteImgPath.isEmpty()) {
+                deleteImgUrl(deleteImgPath);
+                finalImgPath = null;
+            }
+
+            // 이미지 등록
+            // 1. 이미지 수정할 공간 생성
+            if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
+                finalImgPath = registerImgUrl(insertImgs.get(0), "mbti/mbtiResult/");
+            }
+
+            MbtiResult mbtiResult = MbtiResult.builder()
+                    .mbtiResultId(dto.getMbtiResultId())
+                    .mbtiResultRegisterId(registerId)
+                    .mbtiResultCategoryName(dto.getMbtiResultCategoryName())
+                    .mbtiResultTitle(dto.getMbtiResultTitle())
+                    .mbtiResultSummary(dto.getMbtiResultSummary())
+                    .mbtiResultContent(dto.getMbtiResultContent())
+                    .mbtiResultStatus(dto.getMbtiResultStatus())
+                    .mbtiResultImg(finalImgPath)
+                    .build();
+
+            mbtiManageMapper.modifyMbtiResult(mbtiResult);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문 결과지 수정중 오류가 발생했습니다. (서버 오류)");
         }
-
-        // 이미지 등록
-        // 1. 이미지 수정할 공간 생성
-        if(insertImgs != null && !insertImgs.get(0).isEmpty()) {
-            finalImgPath = registerImgUrl(insertImgs.get(0), "mbti/mbtiResult/");
-        }
-
-
-
-        MbtiResult mbtiResult = MbtiResult.builder()
-                .mbtiResultId(dto.getMbtiResultId())
-                .mbtiResultRegisterId(registerId)
-                .mbtiResultCategoryName(dto.getMbtiResultCategoryName())
-                .mbtiResultTitle(dto.getMbtiResultTitle())
-                .mbtiResultSummary(dto.getMbtiResultSummary())
-                .mbtiResultContent(dto.getMbtiResultContent())
-                .mbtiResultStatus(dto.getMbtiResultStatus())
-                .mbtiResultImg(finalImgPath)
-                .build();
-
-        mbtiManageMapper.modifyMbtiResult(mbtiResult);
     }
 
     // mbti 설문 결과 항목 삭제
-    public void deleteMbtiResult(int resultId) {
-        mbtiManageMapper.deleteMbtiResult(resultId);
+    public void deleteMbtiResult(int resultId) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
+        try {
+            mbtiManageMapper.deleteMbtiResult(resultId);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문 결과지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     // mbti 설문 결과 복수개 삭제
-    public void deleteMbtiResultList(ReqDeleteMbtiResultListDto dto) {
+    public void deleteMbtiResultList(ReqDeleteMbtiResultListDto dto) throws Exception {
+        PrincipalUser principalUser = (PrincipalUser)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser == null) {
+            throw new Exception("로그인 시간이 만료되었습니다. 다시 로그인 후 이용해주시기 바랍니다.");
+        }
+
         List<Integer> mbtiResultIdList = dto.getMbtiResultIdList();
-        mbtiManageMapper.deleteMbtiResultList(mbtiResultIdList);
+
+        try {
+            mbtiManageMapper.deleteMbtiResultList(mbtiResultIdList);
+        } catch (Exception e) {
+            throw new Exception("mbti 설문 결과지 삭제중 오류가 발생했습니다. (서버 오류)");
+        }
     }
 
     public String registerImgUrl(MultipartFile img, String dirName ) throws IOException {
