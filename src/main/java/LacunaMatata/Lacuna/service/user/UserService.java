@@ -35,9 +35,10 @@ public class UserService {
 
     @Value("${file.path}")
     private String filePath;
-
     @Value("${spring.mail.username}")
     private String fromEmail;
+    @Value("{server.serverAddress")
+    private String serverAddress;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -210,7 +211,8 @@ public class UserService {
                 + "width:400px'>");
         htmlContent.append("<h2>Lacuna 메일 주소 변경 이메일 인증 입니다.</h2>");
         htmlContent.append("<h3>아래 인증하기 버튼을 클릭해주세요</h3>");
-        htmlContent.append("<form action='http://localhost:8080/api/v1/user/change/email' method='POST'>");
+        htmlContent.append("<form action='http://" + ("localhost:8080".equals(serverAddress) ? "localhost:8080" : serverAddress)
+                + "/api/v1/user/change/email' method='POST'>");
         htmlContent.append("<input type='hidden' name='_method' value='PUT' />");
         htmlContent.append("<input type='hidden' name='emailToken' value='");
         htmlContent.append(bearerToken);
