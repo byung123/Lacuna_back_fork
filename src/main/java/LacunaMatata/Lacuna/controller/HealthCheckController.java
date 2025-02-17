@@ -39,6 +39,6 @@ public class HealthCheckController {
     // 실제 healthCheck 체크
     @GetMapping("/test")
     public ResponseEntity<?> getTest() {
-        return ResponseEntity.ok("테스트");
+        return ResponseEntity.ok("테스트1");
     }
 }
