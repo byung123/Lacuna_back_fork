@@ -52,7 +52,7 @@ spring:
 # 탄력적 ip주소 하기
 server:
   port: 8080
-  serverAddress: 43.203.59.220
+  serverAddress: 3.36.34.154
 
 serverName: blue_server
 
@@ -72,12 +72,13 @@ spring:
             redirect-uri: http://43.203.59.220/login/oauth2/code/kakao
 
 server:
-  port: 8080
-  serverAddress: 43.203.59.220
+  port: 8081
+  serverAddress: 3.36.34.154
 
 serverName: green_server
 
 ---
+
 spring:
   config:
     activate:
@@ -86,7 +87,9 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+
 ---
+
 spring:
   config:
     activate:
