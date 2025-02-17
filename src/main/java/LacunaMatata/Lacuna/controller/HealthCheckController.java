@@ -35,4 +35,10 @@ public class HealthCheckController {
     public ResponseEntity<?> getEnv() {
         return ResponseEntity.ok(env);
     }
+
+    // 실제 healthCheck 체크
+    @GetMapping("/test")
+    public ResponseEntity<?> getTest() {
+        return ResponseEntity.ok("테스트");
+    }
 }
